@@ -1,0 +1,497 @@
+Windows PowerShell
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+Try the new cross-platform PowerShell https://aka.ms/pscore6
+
+PS C:\Users\ABRAG Soft> cd 'C:\Users\ABRAG Soft\Desktop\Python310\SmartAttendance'
+PS C:\Users\ABRAG Soft\Desktop\Python310\SmartAttendance> python a.py
+
+════════════════════════════════════════════════════════════
+🔧 إصلاح التحذيرين
+════════════════════════════════════════════════════════════
+
+✅ نسخة: attendance_server.py.fix_warnings_20260930_081202.bak
+✅ تم الحفظ
+✅   • تفاصيل خطأ التحليل
+✅   • OpenCV timeout 5s
+✅   • FFmpeg stimeout 5s
+
+🔧 التحقق النحوي...
+✅ ✅ الملف صحيح
+
+════════════════════════════════════════════════════════════
+🎉 اكتمل الإصلاح
+════════════════════════════════════════════════════════════
+
+📌 شغّل السيرفر مجدداً:
+   python attendance_server.py
+
+PS C:\Users\ABRAG Soft\Desktop\Python310\SmartAttendance> python attendance_server.py
+⚠️ MediaPipe نسخة غير متوافقة — كشف رفع اليد معطّل
+⚙️ [Optimizer] تم إعداد البيئة
+Applied providers: ['CPUExecutionProvider'], with options: {'CPUExecutionProvider': {}}
+find model: C:\Users\ABRAG Soft/.insightface\models\buffalo_l\1k3d68.onnx landmark_3d_68 ['None', 3, 192, 192] 0.0 1.0
+Applied providers: ['CPUExecutionProvider'], with options: {'CPUExecutionProvider': {}}
+find model: C:\Users\ABRAG Soft/.insightface\models\buffalo_l\2d106det.onnx landmark_2d_106 ['None', 3, 192, 192] 0.0 1.0
+Applied providers: ['CPUExecutionProvider'], with options: {'CPUExecutionProvider': {}}
+find model: C:\Users\ABRAG Soft/.insightface\models\buffalo_l\det_10g.onnx detection [1, 3, '?', '?'] 127.5 128.0
+Applied providers: ['CPUExecutionProvider'], with options: {'CPUExecutionProvider': {}}
+find model: C:\Users\ABRAG Soft/.insightface\models\buffalo_l\genderage.onnx genderage ['None', 3, 96, 96] 0.0 1.0
+Applied providers: ['CPUExecutionProvider'], with options: {'CPUExecutionProvider': {}}
+find model: C:\Users\ABRAG Soft/.insightface\models\buffalo_l\w600k_r50.onnx recognition ['None', 3, 112, 112] 127.5 127.5
+set det-size: (320, 320)
+✅ InsightFace buffalo_l @ 320x320 (وضع سريع)
+✅ [Optimizer] تم تهيئة المحسّنات
+✅ [YOLO-ONNX] محمّل: yolov8n.onnx
+✅ [YOLO] ONNX (yolov8n.onnx) — أسرع 2x
+🎯 [YOLO] Backend: onnx
+✅ Connection Pool جاهز (5 اتصال)
+✅ [Private Messages] تم تحديث قاعدة البيانات
+✅ ✅ تم إنشاء الجداول بنجاح.
+============================================================
+ℹ️ 🌐 فحص الاتصال بالإنترنت...
+⚠️ ⚠️ لا يوجد إنترنت — الإشعارات ستُخزن مؤقتاً وتُرسل عند عودة الاتصال.
+============================================================
+ℹ️ 🚀 بدء تشغيل نظام الحضور الذكي...
+ℹ️ 📅 التاريخ والوقت: 2026-09-30 08:12:37
+============================================================
+ℹ️ 📋 إعدادات النظام:
+ℹ️    📧 البريد: almanalmodernschool@gmail.com
+ℹ️    🤖 توكن التيليجرام: 8413759063...
+ℹ️    🔗 رابط الخادم: https://shout-alienable-diffuser.ngrok-free.dev
+ℹ️    🖥️  خادم SQL: DESKTOP-VM930UU
+ℹ️    📁 قاعدة البيانات: SmartAttendanceDB
+============================================================
+✅ تم تحميل 0 إشعار من الملف.
+✅ تم تحميل 6 مستخدم (6 بصمة).
+⏰ المجدول يعمل.
+ℹ️ ⏰ تم تشغيل المجدول.
+ℹ️ 📊 تم تشغيل طابعة الحضور.
+🎥 بدء خدمة تسجيل الفيديو (اتصالات دائمة)...
+ℹ️ 🎥 تم تشغيل خدمة تسجيل الفيديو.
+🎥 [Exam Worker] بدء خيط المراقبة
+ℹ️ 🎥 تم تشغيل خيط مراقبة الاختبارات
+⏰ [Exam Scheduler] بدء خيط المؤقت
+ℹ️ ⏰ تم تشغيل خيط المؤقت التلقائي للاختبارات
+============================================================
+ℹ️ 🚀 التحسينات المُفعّلة:
+ℹ️    ✅ InsightFace buffalo_l @ 320x320
+ℹ️    ✅ فلتر الحركة (توفير ~70%)
+ℹ️    ✅ تدوير الديتكتورات (واحد/إطار)
+ℹ️    ✅ كاش الوجوه (TTL 3s)
+ℹ️    ✅ Request Coalescer
+ℹ️    ✅ MAX_CONCURRENT_RECORDINGS = 1
+ℹ️    ✅ ThreadPoolExecutor = 2
+ℹ️    🎯 YOLO Backend: ONNX
+ℹ️    ✅ Cache-Control قوي للـ static
+ℹ️    ✅ Gzip pre-compression
+ℹ️    ✅ Service Worker ذكي
+ℹ️    📊 راقب الأداء: /api/system/performance
+============================================================
+✅ 🚀 نظام الحضور الذكي - الخادم يعمل
+ℹ️ 🌐 الخادم يعمل على: http://0.0.0.0:5000
+ℹ️ 💡 افتح المتصفح على http://localhost:5000
+ℹ️ 🛑 للإيقاف: اضغط Ctrl+C
+============================================================
+ℹ️ 🚀 تشغيل Waitress على المنفذ 5000...
+ℹ️ 📡 في انتظار الطلبات...
+============================================================
+2026-09-30 08:12:39,217 [INFO] waitress: Serving on http://0.0.0.0:5000
+
+📨 [08:12:58] GET /
+✅ [200] GET /
+
+📨 [08:13:01] GET /test-login
+✅ [302] GET /test-login
+
+📨 [08:13:06] GET /admin
+✅ [200] GET /admin
+
+📨 [08:13:06] GET /api/stats
+
+📨 [08:13:06] GET /api/attendance/today-stats
+📨 [08:13:06] GET /api/absence/today
+
+
+📨 [08:13:06] GET /api/me/profile
+
+📨 [08:13:06] GET /api/messages/unread-count
+[ WARN:0@30.053] global cap_ffmpeg_impl.hpp:453 _opencv_ffmpeg_interrupt_callback Stream timeout triggered after 30052.294000 ms
+✅ [200] GET /api/me/profile
+
+📨 [08:13:11] GET /api/me/profile
+✅ [200] GET /api/stats
+✅ [200] GET /api/messages/unread-count
+
+📨 [08:13:11] GET /api/messages/unread-count
+⚠️ خطأ في التحليل المتوازي: TimeoutError:
+Traceback (most recent call last):
+  File "C:\Users\ABRAG Soft\Desktop\Python310\SmartAttendance\attendance_server.py", line 1436, in exam_monitor_worker
+    f.result(timeout=30)
+  File "C:\Program Files\Python310\lib\concurrent\futures\_base.py", line 460, in result
+    raise TimeoutError()
+concurrent.futures._base.TimeoutError
+✅ [200] GET /api/me/profile
+✅ [200] GET /api/attendance/today-stats
+✅ [200] GET /api/messages/unread-count
+✅ [200] GET /api/absence/today
+
+📨 [08:13:23] GET /individual-holidays
+✅ [200] GET /individual-holidays
+
+📨 [08:13:25] GET /dropout-alerts
+✅ [200] GET /dropout-alerts
+
+📨 [08:13:25] GET /absent-cleanup
+✅ [200] GET /absent-cleanup
+
+📨 [08:13:25] GET /broadcast
+✅ [200] GET /broadcast
+
+📨 [08:13:26] GET /broadcast
+✅ [200] GET /broadcast
+
+📨 [08:13:26] GET /api/me/profile
+
+📨 [08:13:26] GET /api/messages/unread-count
+
+📨 [08:13:27] GET /users
+✅ [200] GET /users
+✅ [200] GET /api/me/profile
+✅ [200] GET /api/messages/unread-count
+
+📨 [08:13:32] GET /api/messages/templates
+✅ [200] GET /api/messages/templates
+[ WARN:1@60.096] global cap_ffmpeg_impl.hpp:453 _opencv_ffmpeg_interrupt_callback Stream timeout triggered after 30038.821000 ms
+⚠️ خطأ في التحليل المتوازي: TimeoutError:
+Traceback (most recent call last):
+  File "C:\Users\ABRAG Soft\Desktop\Python310\SmartAttendance\attendance_server.py", line 1436, in exam_monitor_worker
+    f.result(timeout=30)
+  File "C:\Program Files\Python310\lib\concurrent\futures\_base.py", line 460, in result
+    raise TimeoutError()
+concurrent.futures._base.TimeoutError
+
+📨 [08:13:47] GET /api/users/search-by-role
+
+📨 [08:13:48] GET /api/users/search-by-role
+
+📨 [08:13:52] GET /api/users/search-by-role
+✅ [200] GET /api/users/search-by-role
+
+📨 [08:13:52] GET /api/users/search-by-role
+✅ [200] GET /api/users/search-by-role
+
+📨 [08:13:53] GET /api/users/search-by-role
+
+📨 [08:13:53] GET /uploads/faces/user_16/1.jpg
+
+📨 [08:13:53] GET /uploads/faces/user_17/1.jpg
+📨 [08:13:53] GET /uploads/faces/user_15/1.jpg
+✅ [200] GET /uploads/faces/user_16/1.jpg
+
+✅ [304] GET /uploads/faces/user_15/1.jpg
+
+📨 [08:13:53] GET /uploads/faces/user_19/1.jpg
+
+📨 [08:13:53] GET /uploads/faces/user_18/1.jpg
+✅ [200] GET /uploads/faces/user_18/1.jpg
+✅ [200] GET /uploads/faces/user_17/1.jpg
+✅ [200] GET /uploads/faces/user_19/1.jpg
+
+📨 [08:13:54] GET /api/users/search-by-role
+
+📨 [08:13:56] GET /api/messages/unread-count
+✅ [200] GET /api/users/search-by-role
+✅ [200] GET /api/users/search-by-role
+✅ [200] GET /api/users/search-by-role
+✅ [200] GET /api/users/search-by-role
+
+📨 [08:14:01] GET /api/users/search-by-role
+✅ [200] GET /api/messages/unread-count
+✅ [200] GET /api/users/search-by-role
+
+📨 [08:14:06] GET /api/users/search-by-role
+[ WARN:2@90.145] global cap_ffmpeg_impl.hpp:453 _opencv_ffmpeg_interrupt_callback Stream timeout triggered after 30046.347000 ms
+✅ [200] GET /api/users/search-by-role
+
+📨 [08:14:11] GET /api/users/search-by-role
+⚠️ خطأ في التحليل المتوازي: TimeoutError:
+Traceback (most recent call last):
+  File "C:\Users\ABRAG Soft\Desktop\Python310\SmartAttendance\attendance_server.py", line 1436, in exam_monitor_worker
+    f.result(timeout=30)
+  File "C:\Program Files\Python310\lib\concurrent\futures\_base.py", line 460, in result
+    raise TimeoutError()
+concurrent.futures._base.TimeoutError
+✅ [200] GET /api/users/search-by-role
+
+📨 [08:14:16] GET /api/users/search-by-role
+
+📨 [08:14:18] GET /api/users/search-by-role
+
+📨 [08:14:18] GET /api/users/search-by-role
+
+📨 [08:14:20] GET /api/users/search-by-role
+
+📨 [08:14:21] GET /api/users/search-by-role
+✅ [200] GET /api/users/search-by-role
+
+📨 [08:14:21] GET /api/users/search-by-role
+
+📨 [08:14:21] GET /api/users/search-by-role
+✅ [200] GET /api/users/search-by-role
+
+📨 [08:14:23] GET /api/users/search-by-role
+✅ [200] GET /api/users/search-by-role
+
+📨 [08:14:24] GET /uploads/faces/user_19/1.jpg
+✅ [304] GET /uploads/faces/user_19/1.jpg
+
+📨 [08:14:24] GET /uploads/faces/user_15/1.jpg
+✅ [304] GET /uploads/faces/user_15/1.jpg
+
+📨 [08:14:24] GET /uploads/faces/user_18/1.jpg
+✅ [304] GET /uploads/faces/user_18/1.jpg
+
+📨 [08:14:24] GET /uploads/faces/user_17/1.jpg
+✅ [304] GET /uploads/faces/user_17/1.jpg
+✅ [200] GET /api/users/search-by-role
+✅ [200] GET /api/users/search-by-role
+✅ [200] GET /api/users/search-by-role
+✅ [200] GET /api/users/search-by-role
+
+📨 [08:14:26] GET /api/messages/unread-count
+✅ [200] GET /api/users/search-by-role
+
+📨 [08:14:28] GET /api/users/search-by-role
+
+📨 [08:14:31] GET /api/users/search-by-role
+✅ [200] GET /api/messages/unread-count
+✅ [200] GET /api/users/search-by-role
+✅ [200] GET /api/users/search-by-role
+
+📨 [08:14:36] GET /uploads/faces/user_15/1.jpg
+✅ [304] GET /uploads/faces/user_15/1.jpg
+[ WARN:0@120.209] global cap_ffmpeg_impl.hpp:453 _opencv_ffmpeg_interrupt_callback Stream timeout triggered after 30058.981000 ms
+⚠️ خطأ في التحليل المتوازي: TimeoutError:
+Traceback (most recent call last):
+  File "C:\Users\ABRAG Soft\Desktop\Python310\SmartAttendance\attendance_server.py", line 1436, in exam_monitor_worker
+    f.result(timeout=30)
+  File "C:\Program Files\Python310\lib\concurrent\futures\_base.py", line 460, in result
+    raise TimeoutError()
+concurrent.futures._base.TimeoutError
+
+📨 [08:14:56] GET /api/messages/unread-count
+✅ [200] GET /api/messages/unread-count
+[ WARN:1@150.279] global cap_ffmpeg_impl.hpp:453 _opencv_ffmpeg_interrupt_callback Stream timeout triggered after 30067.438000 ms
+⚠️ خطأ في التحليل المتوازي: TimeoutError:
+Traceback (most recent call last):
+  File "C:\Users\ABRAG Soft\Desktop\Python310\SmartAttendance\attendance_server.py", line 1436, in exam_monitor_worker
+    f.result(timeout=30)
+  File "C:\Program Files\Python310\lib\concurrent\futures\_base.py", line 460, in result
+    raise TimeoutError()
+concurrent.futures._base.TimeoutError
+
+📨 [08:15:26] GET /api/messages/unread-count
+✅ [200] GET /api/messages/unread-count
+[ WARN:2@180.312] global cap_ffmpeg_impl.hpp:453 _opencv_ffmpeg_interrupt_callback Stream timeout triggered after 30030.870000 ms
+⚠️ خطأ في التحليل المتوازي: TimeoutError:
+Traceback (most recent call last):
+  File "C:\Users\ABRAG Soft\Desktop\Python310\SmartAttendance\attendance_server.py", line 1436, in exam_monitor_worker
+    f.result(timeout=30)
+  File "C:\Program Files\Python310\lib\concurrent\futures\_base.py", line 460, in result
+    raise TimeoutError()
+concurrent.futures._base.TimeoutError
+
+📨 [08:15:56] GET /api/messages/unread-count
+✅ [200] GET /api/messages/unread-count
+
+📨 [08:16:02] GET /users
+✅ [200] GET /users
+
+📨 [08:16:02] GET /api/users
+
+📨 [08:16:02] GET /api/me/profile
+
+📨 [08:16:02] GET /api/messages/unread-count
+[ WARN:0@210.431] global cap_ffmpeg_impl.hpp:453 _opencv_ffmpeg_interrupt_callback Stream timeout triggered after 30115.781000 ms
+✅ [200] GET /api/users
+✅ [200] GET /api/me/profile
+✅ [200] GET /api/messages/unread-count
+
+📨 [08:16:07] GET /api/me/profile
+
+📨 [08:16:07] GET /api/messages/unread-count
+
+📨 [08:16:07] GET /users
+✅ [200] GET /users
+⚠️ خطأ في التحليل المتوازي: TimeoutError:
+Traceback (most recent call last):
+  File "C:\Users\ABRAG Soft\Desktop\Python310\SmartAttendance\attendance_server.py", line 1436, in exam_monitor_worker
+    f.result(timeout=30)
+  File "C:\Program Files\Python310\lib\concurrent\futures\_base.py", line 460, in result
+    raise TimeoutError()
+concurrent.futures._base.TimeoutError
+✅ [200] GET /api/me/profile
+✅ [200] GET /api/messages/unread-count
+
+📨 [08:16:32] GET /api/messages/unread-count
+[ WARN:1@240.482] global cap_ffmpeg_impl.hpp:453 _opencv_ffmpeg_interrupt_callback Stream timeout triggered after 30048.504000 ms
+✅ [200] GET /api/messages/unread-count
+
+📨 [08:16:37] GET /api/messages/unread-count
+⚠️ خطأ في التحليل المتوازي: TimeoutError:
+Traceback (most recent call last):
+  File "C:\Users\ABRAG Soft\Desktop\Python310\SmartAttendance\attendance_server.py", line 1436, in exam_monitor_worker
+    f.result(timeout=30)
+  File "C:\Program Files\Python310\lib\concurrent\futures\_base.py", line 460, in result
+    raise TimeoutError()
+concurrent.futures._base.TimeoutError
+✅ [200] GET /api/messages/unread-count
+
+📨 [08:17:02] GET /api/messages/unread-count
+[ WARN:2@270.518] global cap_ffmpeg_impl.hpp:453 _opencv_ffmpeg_interrupt_callback Stream timeout triggered after 30032.112000 ms
+✅ [200] GET /api/messages/unread-count
+
+📨 [08:17:07] GET /api/messages/unread-count
+⚠️ خطأ في التحليل المتوازي: TimeoutError:
+Traceback (most recent call last):
+  File "C:\Users\ABRAG Soft\Desktop\Python310\SmartAttendance\attendance_server.py", line 1436, in exam_monitor_worker
+    f.result(timeout=30)
+  File "C:\Program Files\Python310\lib\concurrent\futures\_base.py", line 460, in result
+    raise TimeoutError()
+concurrent.futures._base.TimeoutError
+✅ [200] GET /api/messages/unread-count
+
+📨 [08:17:25] GET /admin
+✅ [200] GET /admin
+
+📨 [08:17:27] GET /messages
+
+📨 [08:17:28] GET /enroll
+✅ [200] GET /enroll
+
+📨 [08:17:28] GET /attendance
+✅ [200] GET /messages
+✅ [200] GET /attendance
+
+📨 [08:17:29] GET /dropout-alerts
+✅ [200] GET /dropout-alerts
+
+📨 [08:17:29] GET /absent-cleanup
+✅ [200] GET /absent-cleanup
+
+📨 [08:17:29] GET /broadcast
+✅ [200] GET /broadcast
+
+📨 [08:17:30] GET /broadcast
+✅ [200] GET /broadcast
+
+📨 [08:17:30] GET /api/me/profile
+
+📨 [08:17:30] GET /api/messages/unread-count
+
+📨 [08:17:30] GET /daily-absence
+✅ [200] GET /daily-absence
+
+📨 [08:17:31] GET /users
+✅ [200] GET /users
+
+📨 [08:17:31] GET /messages
+✅ [200] GET /messages
+✅ [200] GET /api/me/profile
+✅ [200] GET /api/messages/unread-count
+[ WARN:0@300.538] global cap_ffmpeg_impl.hpp:453 _opencv_ffmpeg_interrupt_callback Stream timeout triggered after 30016.312000 ms
+⚠️ خطأ في التحليل المتوازي: TimeoutError:
+Traceback (most recent call last):
+  File "C:\Users\ABRAG Soft\Desktop\Python310\SmartAttendance\attendance_server.py", line 1436, in exam_monitor_worker
+    f.result(timeout=30)
+  File "C:\Program Files\Python310\lib\concurrent\futures\_base.py", line 460, in result
+    raise TimeoutError()
+concurrent.futures._base.TimeoutError
+
+📨 [08:18:00] GET /api/messages/unread-count
+✅ [200] GET /api/messages/unread-count
+[ WARN:1@330.567] global cap_ffmpeg_impl.hpp:453 _opencv_ffmpeg_interrupt_callback Stream timeout triggered after 30025.302000 ms
+⚠️ خطأ في التحليل المتوازي: TimeoutError:
+Traceback (most recent call last):
+  File "C:\Users\ABRAG Soft\Desktop\Python310\SmartAttendance\attendance_server.py", line 1436, in exam_monitor_worker
+    f.result(timeout=30)
+  File "C:\Program Files\Python310\lib\concurrent\futures\_base.py", line 460, in result
+    raise TimeoutError()
+concurrent.futures._base.TimeoutError
+
+📨 [08:18:30] GET /api/messages/unread-count
+✅ [200] GET /api/messages/unread-count
+[ WARN:2@360.668] global cap_ffmpeg_impl.hpp:453 _opencv_ffmpeg_interrupt_callback Stream timeout triggered after 30096.782000 ms
+⚠️ خطأ في التحليل المتوازي: TimeoutError:
+Traceback (most recent call last):
+  File "C:\Users\ABRAG Soft\Desktop\Python310\SmartAttendance\attendance_server.py", line 1436, in exam_monitor_worker
+    f.result(timeout=30)
+  File "C:\Program Files\Python310\lib\concurrent\futures\_base.py", line 460, in result
+    raise TimeoutError()
+concurrent.futures._base.TimeoutError
+
+📨 [08:19:00] GET /api/messages/unread-count
+✅ [200] GET /api/messages/unread-count
+[ WARN:0@390.683] global cap_ffmpeg_impl.hpp:453 _opencv_ffmpeg_interrupt_callback Stream timeout triggered after 30011.567000 ms
+⚠️ خطأ في التحليل المتوازي: TimeoutError:
+Traceback (most recent call last):
+  File "C:\Users\ABRAG Soft\Desktop\Python310\SmartAttendance\attendance_server.py", line 1436, in exam_monitor_worker
+    f.result(timeout=30)
+  File "C:\Program Files\Python310\lib\concurrent\futures\_base.py", line 460, in result
+    raise TimeoutError()
+concurrent.futures._base.TimeoutError
+
+📨 [08:19:30] GET /api/messages/unread-count
+✅ [200] GET /api/messages/unread-count
+[ WARN:1@420.762] global cap_ffmpeg_impl.hpp:453 _opencv_ffmpeg_interrupt_callback Stream timeout triggered after 30075.757000 ms
+⚠️ خطأ في التحليل المتوازي: TimeoutError:
+Traceback (most recent call last):
+  File "C:\Users\ABRAG Soft\Desktop\Python310\SmartAttendance\attendance_server.py", line 1436, in exam_monitor_worker
+    f.result(timeout=30)
+  File "C:\Program Files\Python310\lib\concurrent\futures\_base.py", line 460, in result
+    raise TimeoutError()
+concurrent.futures._base.TimeoutError
+
+📨 [08:20:00] GET /api/messages/unread-count
+✅ [200] GET /api/messages/unread-count
+[ WARN:2@450.770] global cap_ffmpeg_impl.hpp:453 _opencv_ffmpeg_interrupt_callback Stream timeout triggered after 30005.543000 ms
+⚠️ خطأ في التحليل المتوازي: TimeoutError:
+Traceback (most recent call last):
+  File "C:\Users\ABRAG Soft\Desktop\Python310\SmartAttendance\attendance_server.py", line 1436, in exam_monitor_worker
+    f.result(timeout=30)
+  File "C:\Program Files\Python310\lib\concurrent\futures\_base.py", line 460, in result
+    raise TimeoutError()
+concurrent.futures._base.TimeoutError
+
+📨 [08:20:30] GET /api/messages/unread-count
+✅ [200] GET /api/messages/unread-count
+[ WARN:0@480.787] global cap_ffmpeg_impl.hpp:453 _opencv_ffmpeg_interrupt_callback Stream timeout triggered after 30012.750000 ms
+
+📨 [08:21:00] GET /api/messages/unread-count
+✅ [200] GET /api/messages/unread-count
+[ WARN:1@510.871] global cap_ffmpeg_impl.hpp:453 _opencv_ffmpeg_interrupt_callback Stream timeout triggered after 30080.098000 ms
+
+📨 [08:21:30] GET /api/messages/unread-count
+✅ [200] GET /api/messages/unread-count
+[ WARN:1@540.952] global cap_ffmpeg_impl.hpp:453 _opencv_ffmpeg_interrupt_callback Stream timeout triggered after 30076.359000 ms
+
+📨 [08:22:00] GET /api/messages/unread-count
+✅ [200] GET /api/messages/unread-count
+[ WARN:0@571.023] global cap_ffmpeg_impl.hpp:453 _opencv_ffmpeg_interrupt_callback Stream timeout triggered after 30067.961000 ms
+
+📨 [08:22:30] GET /api/messages/unread-count
+✅ [200] GET /api/messages/unread-count
+[ WARN:2@601.129] global cap_ffmpeg_impl.hpp:453 _opencv_ffmpeg_interrupt_callback Stream timeout triggered after 30104.398000 ms
+
+📨 [08:23:00] GET /api/messages/unread-count
+🧹 تم تنظيف الرموز.
+✅ [200] GET /api/messages/unread-count
+[ WARN:1@631.145] global cap_ffmpeg_impl.hpp:453 _opencv_ffmpeg_interrupt_callback Stream timeout triggered after 30012.372000 ms
+
+📨 [08:23:29] GET /admin
+✅ [200] GET /admin
+
+📨 [08:23:30] GET /api/messages/unread-count
+✅ [200] GET /api/messages/unread-count
+[ WARN:0@661.240] global cap_ffmpeg_impl.hpp:453 _opencv_ffmpeg_interrupt_callback Stream timeout triggered after 30090.983000 ms

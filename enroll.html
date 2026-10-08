@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartFace AI | إضافة مستخدم</title>
+    
+    <link href="{{ url_for('static', filename='css/bootstrap.rtl.min.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/all.min.css') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="theme-color" content="#4f46e5" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+        
+        :root { --primary: #4f46e5; --primary-glow: rgba(79, 70, 229, 0.4); --secondary: #ec4899; --accent: #f59e0b; --bg-base: #f0f4f8; --glass-bg: rgba(255, 255, 255, 0.55); --glass-border: rgba(255, 255, 255, 0.3); --glass-shadow: 6px 6px 12px rgba(163, 177, 198, 0.4), -6px -6px 12px rgba(255, 255, 255, 0.8); --text-main: #0f172a; --text-muted: #64748b; --sidebar-bg: linear-gradient(195deg, #0f172a 0%, #1e293b 100%); --success: #10b981; --danger: #ef4444; }
+        body.dark-mode { --bg-base: #020617; --glass-bg: rgba(30, 41, 59, 0.45); --glass-border: rgba(255, 255, 255, 0.04); --glass-shadow: 4px 4px 10px rgba(0, 0, 0, 0.7); --text-main: #f1f5f9; --text-muted: #94a3b8; --sidebar-bg: linear-gradient(195deg, #000000 0%, #111827 100%); }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); min-height: 100vh; transition: .4s; overflow-x: hidden; background-image: radial-gradient(circle at 10% 10%, rgba(79, 70, 229, 0.08) 0%, transparent 35%), radial-gradient(circle at 90% 90%, rgba(236, 72, 153, 0.06) 0%, transparent 35%); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(var(--secondary), var(--primary)); border-radius: 10px; }
+
+        .glass { background: var(--glass-bg); backdrop-filter: blur(25px) saturate(180%); border: 1px solid var(--glass-border); border-radius: 24px; box-shadow: var(--glass-shadow); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        #neuralNetCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; opacity: 0.5; }
+        body.dark-mode #neuralNetCanvas { opacity: 0.3; }
+
+        .sidebar { background: var(--sidebar-bg); min-height: 100vh; color: #fff; position: sticky; top: 0; height: 100vh; overflow-y: auto; z-index: 1030; }
+        .sidebar .brand { padding: 40px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .sidebar .brand .logo { width: 70px; height: 70px; background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%); border-radius: 20px; display: grid; place-items: center; margin: 0 auto 15px; font-size: 2.2rem; color: #fff; box-shadow: 0 0 20px var(--primary-glow); animation: pulse-glow 2s infinite; }
+        @keyframes pulse-glow { 0%,100% { box-shadow: 0 0 15px var(--primary-glow); } 50% { box-shadow: 0 0 30px var(--primary-glow); } }
+        .sidebar h4 { font-weight: 900; margin: 0; }
+        .sidebar .nav-link { color: rgba(255,255,255,0.7); padding: 16px 25px; border-radius: 16px; margin: 8px 15px; display: flex; align-items: center; gap: 15px; transition: .3s; font-weight: 600; }
+        .sidebar .nav-link:hover { color: #fff; background: rgba(255,255,255, 0.04); transform: translateX(-5px); }
+        .sidebar .nav-link.active { background: rgba(79, 70, 229, 0.15); color: #fff; border-right: 3px solid var(--secondary); box-shadow: inset -10px 0 20px rgba(236, 72, 153, 0.1); }
+        .sidebar .nav-link.active i { color: var(--secondary); text-shadow: 0 0 10px var(--secondary); }
+
+        .main-content { padding: 40px; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; animation: fadeInDown 0.6s ease-out; }
+        .page-header h1 { font-size: 2.3rem; font-weight: 900; background: linear-gradient(135deg, var(--secondary), var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1.5px; }
+
+        .btn-action { border-radius: 15px; padding: 12px 24px; font-weight: 700; transition: .3s; display: flex; align-items: center; gap: 10px; border: 1px solid transparent; }
+        .btn-pro { background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%); color: #fff; box-shadow: 0 4px 15px var(--primary-glow); }
+        .btn-pro:hover { box-shadow: 0 6px 20px var(--primary-glow); transform: translateY(-2px); color: #fff; }
+        .btn-glass { background: var(--glass-bg); color: var(--text-main); border: 1px solid var(--glass-border); }
+        .btn-glass:hover { background: rgba(255,255,255, 0.1); transform: translateY(-2px); }
+
+        .form-control, .form-select { border-radius: 12px; padding: 12px 20px; background: rgba(255,255,255,0.1); border: 1px solid transparent; color: var(--text-main); transition: 0.3s; }
+        .form-control:focus { background: #fff; border-color: var(--primary); box-shadow: 0 0 10px var(--primary-glow); }
+        body.dark-mode .form-control:focus { background: #000; border-color: var(--secondary); }
+
+        .input-group { position: relative; }
+        .input-group-text { position: absolute; left: 5px; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer; color: var(--text-muted); z-index: 10; padding: 0 10px; }
+        .input-group-text:hover { color: var(--primary); }
+
+        .camera-container { border: 2px dashed var(--primary); border-radius: 16px; padding: 15px; text-align: center; background: rgba(0,0,0,0.05); }
+        #video { max-width: 100%; border-radius: 8px; display: block; margin: 0 auto; background: #000; transform: scaleX(-1); }
+        .preview-img { max-width: 250px; border-radius: 8px; margin-top: 10px; display: block; margin-left: auto; margin-right: auto; }
+
+        .file-input-wrapper { margin: 10px 0; }
+        .file-input-wrapper input[type=file] { display: none; }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media(max-width: 992px) { .sidebar { position: fixed; right: -300px; width: 300px; transform: translateX(0); transition: transform 0.3s ease-in-out; } .sidebar.show { transform: translateX(-300px); } .main-content { padding: 20px; } #menuToggle { display: block !important; } }
+    </style>
+</head>
+<body>
+    <canvas id="neuralNetCanvas"></canvas>
+
+    <button id="menuToggle" class="btn btn-pro position-fixed d-lg-none" style="top:20px; right:20px; z-index:1041; border-radius:15px; display:none;"><i class="fas fa-bars fs-4"></i></button>
+    <button id="darkModeToggle" class="btn position-fixed glass" style="bottom:30px; left:30px; width:60px; height:60px; z-index:999; border-radius:50%; font-size:1.6rem;">🌙</button>
+
+    <div class="container-fluid"><div class="row">
+        <div class="col-lg-2 sidebar p-0" id="sidebar">
+            <div class="brand"><div class="logo"><i class="fas fa-brain"></i></div><h4>SmartFace <span style="color:var(--secondary)">AI</span></h4></div>
+            <ul class="nav flex-column py-3">
+                  <li class="nav-item"><a href="/admin" class="nav-link"><i class="fas fa-home"></i> الرئيسية</a></li>
+                    <li class="nav-item"><a href="/enroll" class="nav-link"><i class="fas fa-user-plus"></i> إضافة مستخدم</a></li>
+                    <li class="nav-item"><a href="/live" class="nav-link"><i class="fas fa-video"></i> الحضور المباشر</a></li>
+                    <li class="nav-item"><a href="/users" class="nav-link"><i class="fas fa-users"></i> إدارة المستخدمين</a></li>
+                    <li class="nav-item"><a href="/attendance" class="nav-link"><i class="fas fa-calendar-check"></i> حضور اليوم</a></li>
+                    <li class="nav-item"><a href="/daily-absence" class="nav-link"><i class="fas fa-user-times"></i> الغياب اليومي</a></li>
+                    <li class="nav-item"><a href="/reports" class="nav-link"><i class="fas fa-chart-bar"></i> التقارير</a></li>
+                    <li class="nav-item"><a href="/settings" class="nav-link"><i class="fas fa-clock"></i> إعدادات الوقت</a></li>
+                    <li class="nav-item"><a href="/holidays" class="nav-link"><i class="fas fa-calendar-alt"></i> الإجازات</a></li>
+                    <li class="nav-item"><a href="/individual-holidays" class="nav-link"><i class="fas fa-user-clock"></i> الإجازات الفردية</a></li>
+                    <li class="nav-item"><a href="/dropout-alerts" class="nav-link"><i class="fas fa-exclamation-triangle"></i> إنذارات التسرب</a></li>
+                    <li class="nav-item"><a href="/absent-cleanup" class="nav-link"><i class="fas fa-trash-alt"></i> حذف بالغياب</a></li>
+                    <li class="nav-item"><a href="/broadcast" class="nav-link active"><i class="fas fa-bullhorn"></i> إرسال إعلان</a></li>
+                    <li class="nav-item"><a href="/api/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i> تسجيل خروج</a></li>
+            </ul>
+        </div>
+
+        <div class="col-lg-10 main-content">
+            <div class="page-header glass p-4 mb-4">
+                <div>
+                    <h1><i class="fas fa-user-plus fs-3 text-muted ms-2"></i> إضافة مستخدم جديد</h1>
+                    <p style="color:var(--text-muted); margin:0;">سجل بصمة الوجه وبيانات العضو في النظام</p>
+                </div>
+            </div>
+
+            <div class="glass p-4">
+                <div id="message"></div>
+                <form id="enrollForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3"><label class="form-label">الاسم الكامل</label><input type="text" class="form-control" id="name" required></div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">الدور</label>
+                            <select class="form-select" id="role">
+                                <option value="مدير">مدير</option>
+                                <option value="مشرف">مشرف</option>
+                                <option value="معلم">معلم</option>
+                                <option value="طالب">طالب</option>
+                                <option value="حارس">حارس</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div id="employeeFieldsWrapper" style="display:block;"><div id="employeeFields"><div class="row">
+                        <div class="col-md-3 mb-3"><label class="form-label">البريد الإلكتروني</label><input type="email" class="form-control" id="email" placeholder="example@domain.com"></div>
+                        <div class="col-md-3 mb-3"><label class="form-label">رقم الهاتف</label><input type="text" class="form-control phone-only" id="phone" placeholder="967770000000" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')"></div>
+                        <div class="col-md-3 mb-3"><label class="form-label">كلمة المرور</label><div class="input-group"><input type="password" class="form-control" id="password" placeholder="اختر كلمة مرور"><span class="input-group-text" id="toggleEnrollPassword"><i class="fas fa-eye" id="enrollEyeIcon"></i></span></div></div>
+                        <div class="col-md-3 mb-3"><label class="form-label">Chat ID تليجرام</label><input type="text" class="form-control" id="telegramChatIdEmp" placeholder="أدخل Chat ID"></div>
+                    </div></div></div>
+
+                    <div id="studentFieldsWrapper" style="display:none;"><div id="studentFields">
+                        <div class="row">
+                            <div class="col-md-4 mb-3"><label class="form-label">الصف</label><select class="form-select" id="classSelect" onchange="handleClassChange()"><option value="">-- اختر الصف --</option><option value="الأول">الأول</option><option value="الثاني">الثاني</option><option value="الثالث">الثالث</option><option value="الرابع">الرابع</option><option value="الخامس">الخامس</option><option value="السادس">السادس</option><option value="السابع">السابع</option><option value="الثامن">الثامن</option><option value="التاسع">التاسع</option><option value="أول ثانوي">أول ثانوي</option><option value="ثاني ثانوي">ثاني ثانوي</option><option value="ثالث ثانوي">ثالث ثانوي</option><option value="__new__">+ إضافة صف جديد</option></select><input type="text" class="form-control mt-2" id="classNew" placeholder="اكتب اسم الصف الجديد" style="display:none;"></div>
+                            <div class="col-md-4 mb-3"><label class="form-label">العمر</label><input type="number" class="form-control" id="age" min="5" max="100"></div>
+                            <div class="col-md-4 mb-3"><label class="form-label">رقم القيد</label><input type="text" class="form-control" id="studentId" readonly></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3"><label class="form-label">إيميل ولي الأمر</label><input type="email" class="form-control" id="parentEmail" placeholder="parent@email.com"></div>
+                            <div class="col-md-6 mb-3"><label class="form-label">هاتف ولي الأمر</label><input type="text" class="form-control phone-only" id="parentPhone" placeholder="967770000000" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3"><label class="form-label">Chat ID تليجرام (ولي الأمر)</label><input type="text" class="form-control" id="telegramChatId" placeholder="أدخل Chat ID"></div>
+                        </div>
+                        <div class="row"><div class="col-md-6 mb-3"><label class="form-label">كلمة مرور ولي الأمر</label><div class="input-group"><input type="password" class="form-control" id="parentPassword" placeholder="اختر كلمة مرور لولي الأمر"><span class="input-group-text" id="toggleParentPassword" style="cursor:pointer;"><i class="fas fa-eye" id="parentEyeIcon"></i></span></div><small class="text-muted">اسم المستخدم سيكون اسم الطالب تلقائيًا</small></div></div>
+                    </div></div>
+
+                    <div class="camera-container mb-3">
+                        <h5><i class="fas fa-camera"></i> صورة الوجه</h5>
+                        <video id="video" autoplay playsinline></video>
+                        <div id="resolutionInfo" style="font-size: 0.8rem; color: var(--success); margin-top: 5px;">⏳ جاري تحميل الكاميرا...</div>
+                        <div class="mt-2">
+                            <button type="button" id="switchCameraBtn" class="btn btn-glass btn-sm"><i class="fas fa-sync-alt"></i> تبديل الكاميرا</button>
+                            <button type="button" id="captureBtn" class="btn btn-pro btn-sm"><i class="fas fa-camera-retro"></i> التقاط صورة</button>
+                        </div>
+                        <div class="file-input-wrapper">
+                            <label class="btn btn-info" style="border-radius: 12px;">
+                                <i class="fas fa-upload"></i> رفع صورة من الجهاز
+                                <input type="file" id="fileInput" accept="image/*" style="display:none;">
+                            </label>
+                            <small class="text-muted"> أو اختر صورة من جهازك</small>
+                        </div>
+                        <img id="preview" class="preview-img" style="display:none;">
+                        <div id="imageSourceInfo" style="font-size:0.9rem; color:var(--text-muted); margin-top:5px;"></div>
+                    </div>
+
+                    <button type="submit" class="btn btn-pro btn-lg w-100"><i class="fas fa-save"></i> حفظ المستخدم</button>
+                </form>
+            </div>
+        </div>
+    </div></div>
+
+    <!-- تم تعديل الروابط لتعمل من مجلد static/js بدون إنترنت -->
+    <script src="{{ url_for('static', filename='js/all.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+
+    <script>
+        const canvas = document.getElementById('neuralNetCanvas');
+        const ctx = canvas.getContext('2d');
+        let points = [];
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resizeCanvas); resizeCanvas();
+        class Point { constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5; this.radius = Math.random() * 2 + 1; }
+            update() { this.x += this.vx; this.y += this.vy; if (this.x < 0 || this.x > canvas.width) this.vx *= -1; if (this.y < 0 || this.y > canvas.height) this.vy *= -1; }
+            draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--primary'); ctx.fill(); }
+        }
+        for (let i = 0; i < 50; i++) points.push(new Point());
+        function animateCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); points.forEach(p => { p.update(); p.draw(); }); ctx.lineWidth = 0.2; for (let i = 0; i < points.length; i++) { for (let j = i + 1; j < points.length; j++) { const dist = Math.hypot(points[i].x - points[j].x, points[i].y - points[j].y); if (dist < 150) { ctx.beginPath(); ctx.moveTo(points[i].x, points[i].y); ctx.lineTo(points[j].x, points[j].y); ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-muted'); ctx.stroke(); } } } requestAnimationFrame(animateCanvas); }
+        animateCanvas();
+
+        const video=document.getElementById('video'),captureBtn=document.getElementById('captureBtn'),preview=document.getElementById('preview');
+        const fileInput = document.getElementById('fileInput');
+        let capturedImageData=null, stream=null;
+        let currentFacingMode = 'user';
+
+        async function startCamera() {
+            try {
+                if (stream) stream.getTracks().forEach(track => track.stop());
+                const constraints = { video: { facingMode: currentFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } } };
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = stream;
+                await video.play();
+                const track = stream.getVideoTracks()[0];
+                const settings = track.getSettings();
+                document.getElementById('resolutionInfo').innerHTML = `✅ الكاميرا تعمل - الدقة: <strong>${settings.width}×${settings.height}</strong>`;
+            } catch (e) {
+                try {
+                    const constraints = { video: { facingMode: currentFacingMode } };
+                    stream = await navigator.mediaDevices.getUserMedia(constraints);
+                    video.srcObject = stream;
+                    await video.play();
+                    const track = stream.getVideoTracks()[0];
+                    const settings = track.getSettings();
+                    document.getElementById('resolutionInfo').innerHTML = `⚠️ الكاميرا تعمل - الدقة: <strong>${settings.width}×${settings.height}</strong> (أقل دقة)`;
+                } catch (e2) {
+                    document.getElementById('resolutionInfo').innerHTML = '❌ تعذر تشغيل الكاميرا';
+                    showMessage('تعذر تشغيل الكاميرا: ' + e2.message, 'danger');
+                }
+            }
+        }
+
+        document.getElementById('switchCameraBtn').addEventListener('click', function() {
+            currentFacingMode = (currentFacingMode === 'user') ? 'environment' : 'user';
+            startCamera();
+            showMessage('تم التبديل إلى الكاميرا ' + (currentFacingMode === 'user' ? 'الأمامية' : 'الخلفية'), 'info');
+        });
+
+        captureBtn.addEventListener('click', function() {
+            if (!stream) { showMessage('⚠️ الكاميرا غير متاحة، استخدم رفع الصورة بدلاً من ذلك.', 'warning'); return; }
+            const c = document.createElement('canvas');
+            const width = video.videoWidth; const height = video.videoHeight;
+            c.width = width; c.height = height;
+            const ctx = c.getContext('2d');
+            ctx.translate(width, 0); ctx.scale(-1, 1);
+            ctx.drawImage(video, 0, 0);
+            capturedImageData = c.toDataURL('image/jpeg', 0.9);
+            preview.src = capturedImageData;
+            preview.style.display = 'block';
+            document.getElementById('imageSourceInfo').innerText = '📷 تم التقاط الصورة من الكاميرا (تم تعديل الاتجاه)';
+            showMessage('تم التقاط الصورة بنجاح.', 'success');
+        });
+
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) { showMessage('❌ الرجاء اختيار ملف صورة صالح.', 'danger'); return; }
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                capturedImageData = event.target.result;
+                preview.src = capturedImageData;
+                preview.style.display = 'block';
+                document.getElementById('imageSourceInfo').innerText = '📁 تم رفع الصورة من الجهاز';
+                showMessage('✅ تم رفع الصورة بنجاح.', 'success');
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function showMessage(msg, type) {
+            const d = document.getElementById('message');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} py-2`;
+            alertDiv.innerText = msg;
+            d.innerHTML = '';
+            d.appendChild(alertDiv);
+            if (type === 'success' || type === 'info') setTimeout(() => d.innerHTML = '', 4000);
+        }
+
+        document.getElementById('toggleEnrollPassword').addEventListener('click', function() {
+            const pf = document.getElementById('password'), ei = document.getElementById('enrollEyeIcon');
+            if (pf.type === 'password') { pf.type = 'text'; ei.classList.remove('fa-eye'); ei.classList.add('fa-eye-slash'); }
+            else { pf.type = 'password'; ei.classList.remove('fa-eye-slash'); ei.classList.add('fa-eye'); }
+        });
+        document.getElementById('toggleParentPassword').addEventListener('click', function() {
+            const pf = document.getElementById('parentPassword'), ei = document.getElementById('parentEyeIcon');
+            if (pf.type === 'password') { pf.type = 'text'; ei.classList.remove('fa-eye'); ei.classList.add('fa-eye-slash'); }
+            else { pf.type = 'password'; ei.classList.remove('fa-eye-slash'); ei.classList.add('fa-eye'); }
+        });
+
+        document.getElementById('enrollForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            if (!capturedImageData) { showMessage('الرجاء التقاط صورة الوجه أو رفع صورة أولاً', 'danger'); return; }
+            const name = document.getElementById('name').value.trim();
+            if (!name) { showMessage('الرجاء إدخال الاسم', 'danger'); return; }
+            showMessage('جاري الحفظ...', 'info');
+            const isStudent = document.getElementById('role').value === 'طالب';
+            const parentUsername = isStudent ? name : "";
+            const formData = {
+                name: name, role: document.getElementById('role').value,
+                class: (document.getElementById('classSelect').value === '__new__' ? document.getElementById('classNew').value.trim() : document.getElementById('classSelect').value) || "",
+                student_id: document.getElementById('studentId').value.trim() || "",
+                age: parseInt(document.getElementById('age').value) || null,
+                email: document.getElementById('email').value.trim() || "",
+                phone: document.getElementById('phone').value.trim() || "",
+                parent_email: document.getElementById('parentEmail').value.trim() || "",
+                parent_phone: document.getElementById('parentPhone').value.trim() || "",
+                password: document.getElementById('password') ? document.getElementById('password').value.trim() || "" : "",
+                parent_username: parentUsername,
+                parent_password: isStudent ? document.getElementById('parentPassword').value.trim() : "",
+                telegram_chat_id: isStudent ? document.getElementById('telegramChatId').value.trim() || "" : document.getElementById('telegramChatIdEmp').value.trim() || "",
+                image: capturedImageData
+            };
+            try {
+                const r = await fetch('/api/enroll', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) });
+                const d = await r.json();
+                if (d.success) {
+                    showMessage('✅ ' + d.message, 'success');
+                    document.getElementById('enrollForm').reset();
+                    capturedImageData = null;
+                    preview.style.display = 'none';
+                    document.getElementById('imageSourceInfo').innerText = '';
+                    document.getElementById('role').value = 'مدير';
+                    refreshFieldsForRole('مدير');
+                    fileInput.value = '';
+                } else { showMessage('❌ ' + (d.message || 'فشل الحفظ.'), 'danger'); }
+            } catch (err) { showMessage('❌ خطأ في الاتصال بالخادم', 'danger'); }
+        });
+
+        async function refreshFieldsForRole(role) {
+            const isStudent = role === 'طالب';
+            document.getElementById('studentFieldsWrapper').style.display = isStudent ? 'block' : 'none';
+            document.getElementById('employeeFieldsWrapper').style.display = !isStudent ? 'block' : 'none';
+            const ef = document.getElementById('email');
+            if (isStudent) { ef.disabled = true; ef.required = false; } else { ef.disabled = false; ef.required = true; }
+            try {
+                const cv = document.getElementById('classSelect').value;
+                const cp = cv && cv !== '__new__' ? `&class=${encodeURIComponent(cv)}` : '';
+                const r = await fetch(`/api/next_id?role=${role}${cp}`);
+                const d = await r.json();
+                if (d.student_id) document.getElementById('studentId').value = d.student_id;
+            } catch (e) {}
+        }
+
+        document.getElementById('role').addEventListener('change', function() { refreshFieldsForRole(this.value); });
+        refreshFieldsForRole('مدير');
+
+        function handleClassChange() {
+            const s = document.getElementById('classSelect'), n = document.getElementById('classNew');
+            if (s.value === '__new__') { n.style.display = 'block'; n.focus(); } else { n.style.display = 'none'; }
+        }
+
+        startCamera();
+
+        const btnDark = document.getElementById('darkModeToggle');
+        if (localStorage.getItem('darkMode') === 'enabled') { document.body.classList.add('dark-mode'); btnDark.innerText = '☀️'; }
+        btnDark.onclick = () => { document.body.classList.toggle('dark-mode'); const isDark = document.body.classList.contains('dark-mode'); localStorage.darkMode = isDark ? 'enabled' : 'disabled'; btnDark.innerText = isDark ? '☀️' : '🌙'; };
+        document.getElementById('menuToggle').onclick = () => document.getElementById('sidebar').classList.toggle('show');
+        if ('serviceWorker' in navigator) { navigator.serviceWorker.register("{{ url_for('static', filename='service-worker.js') }}").then(() => console.log('✅ SW')).catch(err => console.log('❌ SW', err)); }
+    </script>
+</body>
+</html>

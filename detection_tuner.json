@@ -1,0 +1,17 @@
+{
+  "fire_sensitivity": "0.65",
+  "fire_min_area": "750",
+  "motion_required_fire": true,
+  "smoke_sensitivity": "0.4",
+  "smoke_min_area": "1700",
+  "day_mode": "night",
+  "day_start": "07:00",
+  "day_end": "17:00",
+  "face_threshold": 1,
+  "face_min_size": 80,
+  "stranger_persist": 3,
+  "cooldown_fire": 180,
+  "cooldown_smoke": 180,
+  "cooldown_stranger": 300,
+  "cooldown_wrong_class": 240
+}

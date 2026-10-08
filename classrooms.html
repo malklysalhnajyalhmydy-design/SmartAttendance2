@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Smart Classroom Monitoring System | الفصول والمعلمين</title>
+    <link href="{{ url_for('static', filename='css/bootstrap.rtl.min.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/all.min.css') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="theme-color" content="#4f46e5" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+    <style>
+        :root { --primary: #4f46e5; --primary-glow: rgba(79, 70, 229, 0.4); --secondary: #ec4899; --bg-base: #f0f4f8; --glass-bg: rgba(255, 255, 255, 0.55); --glass-border: rgba(255, 255, 255, 0.3); --glass-shadow: 6px 6px 12px rgba(163, 177, 198, 0.4), -6px -6px 12px rgba(255, 255, 255, 0.8); --text-main: #0f172a; --text-muted: #64748b; --sidebar-bg: linear-gradient(195deg, #0f172a 0%, #1e293b 100%); --success: #10b981; --warning: #f59e0b; --danger: #ef4444; }
+        body.dark-mode { --bg-base: #020617; --glass-bg: rgba(30, 41, 59, 0.45); --glass-border: rgba(255, 255, 255, 0.04); --glass-shadow: 4px 4px 10px rgba(0, 0, 0, 0.7); --text-main: #f1f5f9; --text-muted: #94a3b8; --sidebar-bg: linear-gradient(195deg, #000000 0%, #111827 100%); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); min-height: 100vh; transition: .4s; overflow-x: hidden; background-image: radial-gradient(circle at 10% 10%, rgba(79, 70, 229, 0.08) 0%, transparent 35%), radial-gradient(circle at 90% 90%, rgba(236, 72, 153, 0.06) 0%, transparent 35%); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(var(--secondary), var(--primary)); border-radius: 10px; }
+        .glass { background: var(--glass-bg); backdrop-filter: blur(25px) saturate(180%); border: 1px solid var(--glass-border); border-radius: 24px; box-shadow: var(--glass-shadow); }
+        #neuralNetCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; opacity: 0.5; }
+        body.dark-mode #neuralNetCanvas { opacity: 0.3; }
+        .sidebar { background: var(--sidebar-bg); min-height: 100vh; color: #fff; position: sticky; top: 0; height: 100vh; overflow-y: auto; z-index: 1030; }
+        .sidebar .brand { padding: 40px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .sidebar .brand .logo { width: 70px; height: 70px; background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%); border-radius: 20px; display: grid; place-items: center; margin: 0 auto 15px; font-size: 2.2rem; color: #fff; box-shadow: 0 0 20px var(--primary-glow); animation: pulse-glow 2s infinite; }
+        @keyframes pulse-glow { 0%,100% { box-shadow: 0 0 15px var(--primary-glow); } 50% { box-shadow: 0 0 30px var(--primary-glow); } }
+        .sidebar h4 { font-weight: 900; margin: 0; }
+        .sidebar .nav-link { color: rgba(255,255,255,0.7); padding: 16px 25px; border-radius: 16px; margin: 8px 15px; display: flex; align-items: center; gap: 15px; transition: .3s; font-weight: 600; }
+        .sidebar .nav-link:hover { color: #fff; background: rgba(255,255,255, 0.04); transform: translateX(-5px); }
+        .sidebar .nav-link.active { background: rgba(79, 70, 229, 0.15); color: #fff; border-right: 3px solid var(--secondary); }
+        .sidebar .nav-link.active i { color: var(--secondary); text-shadow: 0 0 10px var(--secondary); }
+        .main-content { padding: 30px; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .page-header h1 { font-size: 2rem; font-weight: 900; background: linear-gradient(135deg, var(--secondary), var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .btn-pro { background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%); color: #fff; box-shadow: 0 4px 15px var(--primary-glow); border-radius: 15px; padding: 10px 22px; font-weight: 700; border: none; cursor: pointer; }
+        .btn-pro:hover { color: #fff; transform: translateY(-2px); }
+        .controls-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; padding: 14px 20px; background: var(--glass-bg); backdrop-filter: blur(15px); border-radius: 16px; border: 1px solid var(--glass-border); position: relative; }
+        .mode-btn { display: flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 12px; border: 2px solid var(--glass-border); background: transparent; color: var(--text-main); font-weight: 700; cursor: pointer; transition: .3s; font-size: 0.9rem; }
+        .mode-btn:hover { transform: translateY(-2px); background: rgba(79, 70, 229, 0.08); }
+        .mode-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 15px var(--primary-glow); }
+        .mode-btn .count { background: rgba(255,255,255,0.3); color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; margin-right: 4px; }
+        .alerts-badge { position: relative; margin-right: auto; }
+        .alerts-badge-btn { display: flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 12px; border: none; background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); transition: .3s; }
+        .alerts-badge-btn:hover { transform: translateY(-2px); }
+        .alerts-count { background: #fff; color: #ef4444; border-radius: 50%; padding: 2px 9px; font-size: 0.8rem; font-weight: 900; min-width: 24px; text-align: center; animation: pulse-badge 2s infinite; }
+        @keyframes pulse-badge { 0%,100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        .main-grid { display: grid; gap: 15px; margin-bottom: 20px; }
+        .main-grid.mode-all { grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); }
+        .main-grid.mode-single { grid-template-columns: 1fr; }
+        .main-grid.mode-double { grid-template-columns: 1fr 1fr; }
+        .main-grid.mode-live { grid-template-columns: 1fr; }
+        .camera-card { position: relative; background: #000; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.3); border: 3px solid transparent; transition: .3s; }
+        .camera-card.active { border-color: var(--primary); box-shadow: 0 0 30px var(--primary-glow); }
+        .camera-card.alerting { border-color: var(--danger); animation: border-pulse 1s infinite; }
+        .camera-card.fire-alerting { border-color: #ff0000; animation: fire-pulse 0.6s infinite; }
+        @keyframes border-pulse { 0%,100% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.6); } 50% { box-shadow: 0 0 40px rgba(239, 68, 68, 0.9); } }
+        @keyframes fire-pulse { 0%,100% { box-shadow: 0 0 30px rgba(255, 0, 0, 0.9); border-color: #ff0000; } 50% { box-shadow: 0 0 60px rgba(255, 0, 0, 1); border-color: #ff6600; } }
+        .camera-stage { position: relative; width: 100%; overflow: hidden; background: #000; display: flex; justify-content: center; align-items: center; min-height: 200px; }
+        .camera-stage img, .camera-stage video { display: block; width: 100%; height: auto; max-height: 60vh; object-fit: contain; }
+        .camera-stage canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        .camera-label { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.75); backdrop-filter: blur(5px); color: #fff; padding: 8px 16px; border-radius: 12px; font-weight: 700; z-index: 10; font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 8px; }
+        .camera-label .dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; animation: pulse-dot 1.5s infinite; }
+        @keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .camera-stats { position: absolute; bottom: 12px; left: 12px; right: 12px; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(8px); border-radius: 10px; padding: 8px 14px; display: flex; justify-content: space-around; color: #fff; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1); z-index: 10; }
+        .camera-stats .item { text-align: center; }
+        .camera-stats .item .v { font-weight: 900; color: var(--success); font-size: 1.1rem; }
+        .camera-stats .item .v.warn { color: var(--warning); }
+        .camera-stats .item .v.danger { color: var(--danger); }
+        .camera-stats .item .l { font-size: 0.7rem; opacity: 0.8; }
+        .camera-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; font-weight: 700; z-index: 5; text-align: center; }
+        .spinner { display: inline-block; width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.2); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 10px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .alerts-panel { position: fixed; top: 0; left: 0; width: 400px; max-width: 90vw; height: 100vh; background: var(--glass-bg); backdrop-filter: blur(20px); border-left: 1px solid var(--glass-border); z-index: 2000; transform: translateX(-100%); transition: transform 0.3s ease-out; box-shadow: -10px 0 30px rgba(0,0,0,0.2); overflow-y: auto; }
+        .alerts-panel.open { transform: translateX(0); }
+        .alerts-panel .panel-header { padding: 20px; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--glass-bg); backdrop-filter: blur(20px); z-index: 10; }
+        .alerts-panel .panel-header h5 { font-weight: 900; margin: 0; }
+        .close-panel-btn { background: transparent; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); width: 40px; height: 40px; border-radius: 50%; }
+        .close-panel-btn:hover { background: rgba(0,0,0,0.05); }
+        .alerts-panel .panel-body { padding: 15px; }
+        .alert-item { background: rgba(255,255,255,0.5); border-radius: 14px; padding: 12px; margin-bottom: 12px; border-right: 4px solid var(--warning); transition: .3s; cursor: pointer; }
+        body.dark-mode .alert-item { background: rgba(0,0,0,0.3); }
+        .alert-item:hover { transform: translateX(-5px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .alert-item.unread { background: rgba(239, 68, 68, 0.08); }
+        .alert-item.type-stranger { border-right-color: #ef4444; }
+        .alert-item.type-wrong_class { border-right-color: #f59e0b; }
+        .alert-item.type-fire { border-right-color: #dc2626; background: rgba(220, 38, 38, 0.1); }
+        .alert-item.type-banned_item { border-right-color: #ec4899; }
+        .alert-item .a-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .alert-item .a-type { font-weight: 900; font-size: 0.85rem; }
+        .alert-item .a-time { font-size: 0.75rem; color: var(--text-muted); }
+        .alert-item .a-desc { font-size: 0.9rem; line-height: 1.4; margin-bottom: 6px; }
+        .alert-item .a-img { width: 100%; height: 120px; object-fit: cover; border-radius: 8px; margin-top: 6px; cursor: pointer; }
+        .alert-item .a-classroom { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+        .no-alerts { text-align: center; padding: 60px 20px; color: var(--text-muted); font-style: italic; }
+        .panel-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 1999; opacity: 0; pointer-events: none; transition: .3s; }
+        .panel-overlay.open { opacity: 1; pointer-events: auto; }
+        .popup-alert { position: fixed; top: 30px; left: 50%; transform: translateX(-50%) translateY(-200px); background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; padding: 20px 30px; border-radius: 20px; box-shadow: 0 10px 40px rgba(239, 68, 68, 0.6); z-index: 5000; font-weight: 700; max-width: 500px; opacity: 0; transition: all 0.4s ease-out; border: 2px solid rgba(255,255,255,0.3); text-align: center; }
+        .popup-alert.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .popup-alert.fire { background: linear-gradient(135deg, #dc2626, #7c2d12); box-shadow: 0 10px 50px rgba(255, 0, 0, 0.8); animation: fire-shake 0.4s infinite; }
+        @keyframes fire-shake { 0%,100% { transform: translateX(-50%) translateY(0) rotate(0deg); } 25% { transform: translateX(-50%) translateY(0) rotate(-1deg); } 75% { transform: translateX(-50%) translateY(0) rotate(1deg); } }
+        .popup-alert .p-title { font-size: 1.3rem; margin-bottom: 8px; font-weight: 900; }
+        .popup-alert .p-desc { font-size: 1rem; opacity: 0.95; }
+        .empty-state { text-align: center; padding: 80px 20px; color: var(--text-muted); }
+        .empty-state i { font-size: 5rem; margin-bottom: 20px; opacity: 0.3; }
+        .empty-state h3 { margin-bottom: 10px; color: var(--text-main); }
+        .empty-state p { margin-bottom: 20px; }
+        .mute-menu { display: none; position: absolute; top: 100%; right: 20px; margin-top: 8px; background: var(--glass-bg); backdrop-filter: blur(15px); border: 1px solid var(--glass-border); border-radius: 12px; padding: 10px; z-index: 1000; min-width: 200px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
+        .mute-menu.open { display: block; }
+        .mute-menu-item { display: block; width: 100%; text-align: right; padding: 8px 12px; background: transparent; border: none; cursor: pointer; border-radius: 8px; font-weight: 600; color: var(--text-main); margin-bottom: 4px; }
+        .mute-menu-item:hover { background: rgba(79,70,229,0.1); }
+        .mute-menu-divider { border-top: 1px solid var(--glass-border); margin: 8px 0; padding-top: 8px; }
+        .mute-menu-item.unmute { color: #10b981; font-weight: 700; }
+        @media (max-width: 992px) {
+            .sidebar { position: fixed; right: -300px; width: 300px; transition: transform 0.3s ease-in-out; z-index: 1040; }
+            .sidebar.show { transform: translateX(-300px); }
+            .main-content { padding: 15px; }
+            #menuToggle { display: block !important; }
+            .main-grid.mode-double { grid-template-columns: 1fr; }
+            .controls-bar { padding: 10px; gap: 8px; }
+            .mode-btn { padding: 8px 12px; font-size: 0.8rem; }
+            .alerts-panel { width: 100%; }
+        }
+        .camera-toggle-bar { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 8px 12px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(255,255,255,0.1); z-index: 6; }
+        .camera-toggle-bar .toggle-label { font-weight: 700; font-size: 0.78rem; color: rgba(255,255,255,0.55); transition: .3s; user-select: none; white-space: nowrap; }
+        .camera-toggle-bar .toggle-label.active { color: #fff; text-shadow: 0 0 10px rgba(79,70,229,0.7); }
+        .camera-toggle-bar .switch { position: relative; display: inline-block; width: 56px; height: 28px; flex-shrink: 0; }
+        .camera-toggle-bar .switch input { opacity: 0; width: 0; height: 0; }
+        .camera-toggle-bar .slider-toggle { position: absolute; cursor: pointer; inset: 0; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 28px; transition: .4s; box-shadow: inset 0 2px 6px rgba(0,0,0,0.3); }
+        .camera-toggle-bar .slider-toggle:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background: #fff; transition: .4s; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+        .camera-toggle-bar .switch input:checked + .slider-toggle { background: linear-gradient(135deg, #10b981, #059669); }
+        .camera-toggle-bar .switch input:checked + .slider-toggle:before { transform: translateX(28px); }
+        .nav-badge{background:var(--danger);color:#fff;padding:2px 9px;border-radius:12px;font-size:.7rem;font-weight:900;margin-right:auto;min-width:22px;text-align:center;display:none;animation:pulse-badge 2s infinite;}
+        @keyframes pulse-badge{0%,100%{transform:scale(1);}50%{transform:scale(1.15);}}
+
+        /* ═══════════════════════════════════════════════════════════
+           🎚️ [Resolution Control] Styles
+           ═══════════════════════════════════════════════════════════ */
+        .res-select {
+            padding: 8px 12px; border-radius: 10px;
+            border: 1px solid var(--glass-border);
+            background: var(--glass-bg); color: var(--text-main);
+            font-family: 'Cairo', sans-serif; font-weight: 700;
+            font-size: 0.85rem; cursor: pointer; transition: 0.25s;
+        }
+        .res-select:hover { border-color: var(--primary); }
+        .res-select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15); }
+        .res-select-inline {
+            padding: 4px 8px; border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(15, 23, 42, 0.9); color: #fff;
+            font-family: 'Cairo', sans-serif; font-weight: 700;
+            font-size: 0.72rem; cursor: pointer;
+            backdrop-filter: blur(8px); min-width: 80px;
+        }
+        .res-select-inline:focus { outline: none; border-color: #4f46e5; box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.4); }
+        .res-info-badge { font-size: 0.68rem; color: #10b981; font-weight: 700; padding: 3px 8px; background: rgba(16, 185, 129, 0.15); border-radius: 8px; white-space: nowrap; }
+        .apply-all-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 16px; border-radius: 10px; border: none;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff; font-family: 'Cairo', sans-serif;
+            font-weight: 800; font-size: 0.82rem; cursor: pointer;
+            transition: 0.25s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            white-space: nowrap;
+        }
+        .apply-all-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(16, 185, 129, 0.5); }
+        .apply-all-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .res-group {
+            display: flex; align-items: center; gap: 8px;
+            padding: 6px 12px; background: rgba(79, 70, 229, 0.08);
+            border-radius: 14px; border: 1px solid var(--glass-border);
+        }
+        .res-group label { font-weight: 700; margin: 0; font-size: 0.82rem; color: var(--text-muted); white-space: nowrap; }
+
+        /* ═══════════════════════════════════════════════════════════
+           🎛️ [Sensitivity Panel] Styles v2.0
+           ═══════════════════════════════════════════════════════════ */
+        .sensitivity-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 16px; border-radius: 10px; border: none;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #fff; font-family: 'Cairo', sans-serif;
+            font-weight: 800; font-size: 0.82rem; cursor: pointer;
+            transition: 0.25s; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+            white-space: nowrap;
+        }
+        .sensitivity-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(245, 158, 11, 0.55); }
+        .sens-modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(6px); z-index: 99999; display: none; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+        .sens-modal-overlay.open { display: flex; }
+        .sens-modal-box { background: var(--bg-base, #fff); border-radius: 24px; width: 100%; max-width: 780px; max-height: 92vh; overflow-y: auto; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5); padding: 28px; }
+        .sens-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid rgba(79, 70, 229, 0.15); }
+        .sens-header h2 { font-weight: 900; font-size: 1.4rem; margin: 0; background: linear-gradient(135deg, #f59e0b, #d97706); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .sens-close { background: transparent; border: none; font-size: 1.6rem; cursor: pointer; color: #64748b; width: 40px; height: 40px; border-radius: 12px; transition: 0.25s; }
+        .sens-close:hover { background: #ef4444; color: #fff; }
+        .sens-section { background: rgba(79, 70, 229, 0.04); border-radius: 16px; padding: 18px; margin-bottom: 16px; border-right: 4px solid var(--primary, #4f46e5); }
+        .sens-section h3 { font-weight: 900; font-size: 1.05rem; margin: 0 0 14px 0; display: flex; align-items: center; gap: 8px; }
+        .sens-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+        .sens-row label { font-weight: 700; font-size: 0.88rem; color: #64748b; min-width: 180px; flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
+        .sens-row .sens-value { font-weight: 900; color: var(--primary, #4f46e5); min-width: 55px; text-align: center; padding: 4px 10px; background: rgba(79, 70, 229, 0.1); border-radius: 8px; font-size: 0.85rem; }
+        .sens-slider { flex: 1; min-width: 150px; height: 6px; border-radius: 3px; background: rgba(79, 70, 229, 0.15); outline: none; -webkit-appearance: none; cursor: pointer; }
+        .sens-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #d97706); cursor: pointer; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.5); }
+        .sens-slider::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #d97706); cursor: pointer; border: none; }
+        .sens-input { width: 90px; padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(79, 70, 229, 0.2); background: #fff; color: #0f172a; font-family: 'Cairo', sans-serif; font-weight: 700; font-size: 0.88rem; text-align: center; }
+        .sens-toggle { position: relative; display: inline-block; width: 56px; height: 28px; cursor: pointer; }
+        .sens-toggle input { opacity: 0; width: 0; height: 0; }
+        .sens-toggle-slider { position: absolute; inset: 0; background: #cbd5e1; border-radius: 28px; transition: 0.3s; }
+        .sens-toggle-slider:before { content: ""; position: absolute; width: 20px; height: 20px; left: 4px; bottom: 4px; background: #fff; border-radius: 50%; transition: 0.3s; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+        .sens-toggle input:checked + .sens-toggle-slider { background: linear-gradient(135deg, #10b981, #059669); }
+        .sens-toggle input:checked + .sens-toggle-slider:before { transform: translateX(28px); }
+        .sens-mode-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+        .sens-mode-btn { padding: 10px 18px; border-radius: 12px; border: 2px solid rgba(79, 70, 229, 0.2); background: #fff; font-family: 'Cairo', sans-serif; font-weight: 800; font-size: 0.85rem; cursor: pointer; transition: 0.25s; color: #0f172a; }
+        .sens-mode-btn:hover { border-color: #f59e0b; }
+        .sens-mode-btn.active { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; border-color: transparent; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4); }
+        .sens-templates { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .sens-template-btn { padding: 14px 12px; border-radius: 12px; border: 2px solid transparent; font-family: 'Cairo', sans-serif; font-weight: 800; font-size: 0.85rem; cursor: pointer; transition: 0.25s; color: #fff; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .sens-template-btn:hover { transform: translateY(-3px); }
+        .sens-template-btn.strict { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .sens-template-btn.balanced { background: linear-gradient(135deg, #4f46e5, #6366f1); }
+        .sens-template-btn.tolerant { background: linear-gradient(135deg, #10b981, #059669); }
+        .sens-template-btn.night { background: linear-gradient(135deg, #64748b, #475569); }
+        .sens-actions { display: flex; gap: 12px; padding-top: 20px; border-top: 2px solid rgba(79, 70, 229, 0.15); flex-wrap: wrap; }
+        .sens-btn { flex: 1; padding: 12px 20px; border-radius: 12px; border: none; font-family: 'Cairo', sans-serif; font-weight: 800; font-size: 0.9rem; cursor: pointer; transition: 0.25s; min-width: 120px; }
+        .sens-btn.primary { background: linear-gradient(135deg, #10b981, #059669); color: #fff; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35); }
+        .sens-btn.primary:hover { transform: translateY(-2px); }
+        .sens-btn.warning { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; }
+        .sens-btn.warning:hover { transform: translateY(-2px); }
+        .sens-btn.danger { background: #ef4444; color: #fff; }
+        .sens-btn.danger:hover { transform: translateY(-2px); }
+        .sens-toast { position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 12px; background: linear-gradient(135deg, #10b981, #059669); color: #fff; font-weight: 800; font-size: 0.85rem; z-index: 100001; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: sensToastIn 0.3s; }
+        @keyframes sensToastIn { from { transform: translateX(120%); } to { transform: translateX(0); } }
+        .sens-info-icon { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; border: none; cursor: pointer; font-size: 0.75rem; font-weight: 900; transition: 0.2s; flex-shrink: 0; font-family: 'Cairo', sans-serif; }
+        .sens-info-icon.blue   { background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid #3b82f6; }
+        .sens-info-icon.orange { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid #f59e0b; }
+        .sens-info-icon.red    { background: rgba(239, 68, 68, 0.15);  color: #ef4444; border: 1px solid #ef4444; }
+        .sens-info-icon.green  { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid #10b981; }
+        .sens-info-icon.purple { background: rgba(139, 92, 246, 0.15); color: #8b5cf6; border: 1px solid #8b5cf6; }
+        .sens-info-icon:hover { transform: scale(1.15); box-shadow: 0 0 12px currentColor; }
+        .sens-info-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 100002; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .sens-info-overlay.open { display: flex; }
+        .sens-info-box { background: #fff; border-radius: 20px; max-width: 520px; width: 100%; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4); padding: 24px; animation: sensInfoIn 0.3s; }
+        @keyframes sensInfoIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .sens-info-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 2px solid #f1f5f9; gap: 12px; }
+        .sens-info-title { font-weight: 900; font-size: 1.15rem; color: #0f172a; display: flex; align-items: center; gap: 10px; flex: 1; }
+        .sens-info-title-icon { font-size: 1.6rem; flex-shrink: 0; }
+        .sens-info-close { background: transparent; border: none; font-size: 1.4rem; cursor: pointer; color: #94a3b8; width: 34px; height: 34px; border-radius: 10px; transition: 0.2s; flex-shrink: 0; }
+        .sens-info-close:hover { background: #ef4444; color: #fff; }
+        .sens-info-body { font-size: 0.9rem; line-height: 1.7; color: #334155; }
+        .sens-info-block { background: #f8fafc; border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; border-right: 4px solid #e2e8f0; }
+        .sens-info-block.what   { border-color: #3b82f6; background: rgba(59, 130, 246, 0.06); }
+        .sens-info-block.up     { border-color: #ef4444; background: rgba(239, 68, 68, 0.06); }
+        .sens-info-block.down   { border-color: #10b981; background: rgba(16, 185, 129, 0.06); }
+        .sens-info-block.recommend { border-color: #f59e0b; background: rgba(245, 158, 11, 0.08); }
+        .sens-info-block-title { font-weight: 900; font-size: 0.9rem; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; color: #0f172a; }
+        .sens-info-block ul { list-style: none; padding: 0; margin: 0; }
+        .sens-info-block li { padding: 4px 0; font-size: 0.86rem; line-height: 1.55; }
+        .sens-info-block li::before { content: "• "; color: #64748b; font-weight: 900; margin-left: 4px; }
+        .sens-info-recommend-value { display: inline-block; padding: 6px 16px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; border-radius: 10px; font-weight: 900; font-size: 1rem; margin-top: 4px; }
+        .sens-info-close-btn { width: 100%; padding: 12px; border-radius: 12px; border: none; background: linear-gradient(135deg, #4f46e5, #6366f1); color: #fff; font-family: 'Cairo', sans-serif; font-weight: 800; font-size: 0.95rem; cursor: pointer; margin-top: 16px; transition: 0.25s; }
+        .sens-info-close-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(79, 70, 229, 0.4); }
+    </style>
+    <link rel="stylesheet" href="/static/css/app.css">
+    <link rel="preconnect" href="https://shout-alienable-diffuser.ngrok-free.dev">
+    <meta http-equiv="x-dns-prefetch-control" content="on">
+</head>
+<body>
+    <canvas id="neuralNetCanvas"></canvas>
+    <button id="menuToggle" class="btn btn-pro position-fixed d-lg-none" style="top:20px; right:20px; z-index:1041; border-radius:15px; display:none;"><i class="fas fa-bars fs-4"></i></button>
+    <button id="darkModeToggle" class="btn position-fixed glass" style="bottom:30px; left:30px; width:60px; height:60px; z-index:999; border-radius:50%; font-size:1.6rem; cursor:pointer;">🌙</button>
+
+    <div class="panel-overlay" id="panelOverlay" onclick="toggleAlertsPanel()"></div>
+    <aside class="alerts-panel" id="alertsPanel">
+        <div class="panel-header">
+            <h5><i class="fas fa-bell me-2" style="color: var(--danger);"></i> الإنذارات</h5>
+            <div>
+                <button class="close-panel-btn" onclick="markAllRead()" title="تعليم الكل كمقروء"><i class="fas fa-check-double"></i></button>
+                <button class="close-panel-btn" onclick="toggleAlertsPanel()" title="إغلاق"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+        <div class="panel-body" id="alertsPanelBody">
+            <div class="no-alerts">⏳ جاري التحميل...</div>
+        </div>
+    </aside>
+
+    <div class="container-fluid"><div class="row">
+        <div class="col-lg-2 sidebar p-0" id="sidebar">
+            <div class="brand">
+                <div class="logo"><i class="fas fa-brain"></i></div>
+                <h4 style="font-size:1.05rem; font-weight:900; margin:0;">AI Smart Classroom</h4>
+                <h6 style="color:rgba(255,255,255,0.6); font-size:0.7rem; margin:4px 0 0; letter-spacing:1px;">MONITORING SYSTEM</h6>
+                <div id="userAvatarBox" style="margin-top:15px; display:flex; align-items:center; gap:10px; padding:10px; background:rgba(255,255,255,0.05); border-radius:12px;">
+                    <img loading="lazy" id="userAvatarImg" src="" alt="الصورة" style="width:45px; height:45px; border-radius:50%; border:2px solid var(--secondary); object-fit:cover; background:#1e293b; display:none;">
+                    <div id="userAvatarPlaceholder" style="width:45px; height:45px; border-radius:50%; background:linear-gradient(135deg,var(--secondary),var(--primary)); display:grid; place-items:center; font-weight:900; color:#fff; font-size:1.1rem;">؟</div>
+                    <div style="flex:1; text-align:right; min-width:0;">
+                        <div id="userAvatarName" style="font-weight:700; color:#fff; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">—</div>
+                        <div id="userAvatarRole" style="font-size:0.75rem; color:rgba(255,255,255,0.6);">—</div>
+                    </div>
+                </div>
+            </div>
+            <ul class="nav flex-column py-3">
+                <li class="nav-item"><a href="/admin" class="nav-link"><i class="fas fa-home"></i> الرئيسية</a></li>
+                <li><a href="/messages" class="nav-link" id="inboxNavLink"><i class="fas fa-inbox"></i> البريد الوارد <span class="nav-badge" id="inboxBadge" style="display:none;">0</span></a></li>
+                <li class="nav-item"><a href="/enroll" class="nav-link"><i class="fas fa-user-plus"></i> إضافة مستخدم</a></li>
+                <li class="nav-item"><a href="/live" class="nav-link"><i class="fas fa-video"></i> الحضور المباشر</a></li>
+                <li class="nav-item"><a href="/classrooms" class="nav-link active"><i class="fas fa-school"></i> الفصول والمعلمين</a></li>
+                <li class="nav-item"><a href="/alerts-history" class="nav-link"><i class="fas fa-bell"></i> سجل الإنذارات</a></li>
+                <li class="nav-item"><a href="/users" class="nav-link"><i class="fas fa-users"></i> إدارة المستخدمين</a></li>
+                <li class="nav-item"><a href="/attendance" class="nav-link"><i class="fas fa-calendar-check"></i> حضور اليوم</a></li>
+                <li class="nav-item"><a href="/daily-absence" class="nav-link"><i class="fas fa-user-times"></i> الغياب اليومي</a></li>
+                <li class="nav-item"><a href="/reports" class="nav-link"><i class="fas fa-chart-bar"></i> التقارير</a></li>
+                <li class="nav-item"><a href="/settings" class="nav-link"><i class="fas fa-clock"></i> إعدادات النظام</a></li>
+                <li class="nav-item"><a href="/holidays" class="nav-link"><i class="fas fa-calendar-alt"></i> الإجازات</a></li>
+                <li class="nav-item"><a href="/api/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i> تسجيل خروج</a></li>
+            </ul>
+        </div>
+
+        <div class="col-lg-10 main-content">
+            <div class="page-header glass p-4 mb-4">
+                <div>
+                    <h1><i class="fas fa-school fs-3 text-muted ms-2"></i> الفصول والمعلمين</h1>
+                    <p style="color:var(--text-muted); margin:0;">مراقبة ذكية — كشف الشخص الغريب، الطالب في الفصل الخطأ، والحريق/الدخان</p>
+                </div>
+            </div>
+
+            <div class="controls-bar" id="controlsBar">
+                <button class="mode-btn active" data-mode="all" onclick="setMode('all')"><i class="fas fa-th"></i> كل الفصول <span class="count" id="countAll">0</span></button>
+                <button class="mode-btn" data-mode="single" onclick="setMode('single')"><i class="fas fa-expand"></i> فصل واحد</button>
+                <button class="mode-btn" data-mode="double" onclick="setMode('double')"><i class="fas fa-columns"></i> فصلان</button>
+                <button class="mode-btn" data-mode="live" onclick="setMode('live')"><i class="fas fa-video"></i> البث المباشر</button>
+
+                <!-- 🎚️ [Resolution Control] مجموعة الدقة العامة -->
+                <div class="res-group" id="globalResGroup">
+                    <i class="fas fa-sliders-h" style="color:var(--primary);"></i>
+                    <label>🎚️ الدقة العامة:</label>
+                    <select id="globalResSelect" class="res-select">
+                        <option value="3840">4K (3840×2160)</option>
+                        <option value="2560">2K (2560×1440)</option>
+                        <option value="1920" selected>Full HD (1920×1080)</option>
+                        <option value="1280">HD (1280×720)</option>
+                        <option value="640">VGA (640×480)</option>
+                    </select>
+                    <button class="apply-all-btn" id="applyAllBtn" onclick="applyResToAll()">
+                        <i class="fas fa-bolt"></i> تطبيق على الكل
+                    </button>
+
+                    <!-- 🎛️ [Sensitivity Panel] زر ضبط الحساسية -->
+                    <button class="sensitivity-btn" onclick="openSensPanel()" title="ضبط حساسية الكشف">
+                        <i class="fas fa-sliders-h"></i> 🎛️ ضبط الحساسية
+                    </button>
+                </div>
+
+                <button id="muteBtn" class="mode-btn" onclick="toggleMuteMenu(event)" style="background: #10b981; color: #fff;"><i class="fas fa-volume-up"></i> الصوت مفعّل</button>
+                <div class="mute-menu" id="muteMenu">
+                    <div style="font-weight:700; margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--glass-border);">🔇 كتم الصوت لمدة:</div>
+                    <button class="mute-menu-item" onclick="muteAlerts(15)">⏱️ 15 دقيقة</button>
+                    <button class="mute-menu-item" onclick="muteAlerts(30)">⏱️ 30 دقيقة</button>
+                    <button class="mute-menu-item" onclick="muteAlerts(60)">⏱️ ساعة</button>
+                    <button class="mute-menu-item" onclick="muteAlerts(120)">⏱️ ساعتان</button>
+                    <div class="mute-menu-divider"><button class="mute-menu-item unmute" onclick="unmuteAlerts()">🔊 إلغاء الكتم فوراً</button></div>
+                </div>
+                <div class="alerts-badge">
+                    <button class="alerts-badge-btn" onclick="toggleAlertsPanel()"><i class="fas fa-bell"></i> الإنذارات <span class="alerts-count" id="alertsUnreadCount">0</span></button>
+                </div>
+            </div>
+
+            <div class="main-grid mode-all" id="mainGrid">
+                <div class="empty-state"><i class="fas fa-spinner fa-spin"></i><h3>جاري تحميل الفصول...</h3></div>
+            </div>
+        </div>
+    </div></div>
+
+    <div class="popup-alert" id="popupAlert">
+        <div class="p-title" id="popupTitle">🚨 إنذار</div>
+        <div class="p-desc" id="popupDesc">...</div>
+    </div>
+
+    <!-- 🎛️ [Sensitivity Panel] النافذة المنبثقة v2.0 -->
+    <div class="sens-modal-overlay" id="sensModal">
+        <div class="sens-modal-box">
+            <div class="sens-header">
+                <h2>🎛️ ضبط حساسية الكشف</h2>
+                <button class="sens-close" onclick="closeSensPanel()">×</button>
+            </div>
+            <div class="sens-templates">
+                <button class="sens-template-btn strict" onclick="applySensTemplate('strict')"><span style="font-size:1.5rem;">🏆</span><span>صارم</span><span style="font-size:0.7rem;opacity:0.85;">حساسية عالية</span></button>
+                <button class="sens-template-btn balanced" onclick="applySensTemplate('balanced')"><span style="font-size:1.5rem;">⚖️</span><span>متوازن</span><span style="font-size:0.7rem;opacity:0.85;">الافتراضي</span></button>
+                <button class="sens-template-btn tolerant" onclick="applySensTemplate('tolerant')"><span style="font-size:1.5rem;">🛡️</span><span>متسامح</span><span style="font-size:0.7rem;opacity:0.85;">كاذبة أقل</span></button>
+                <button class="sens-template-btn night" onclick="applySensTemplate('night')"><span style="font-size:1.5rem;">🌙</span><span>ليلي</span><span style="font-size:0.7rem;opacity:0.85;">إضاءة ضعيفة</span></button>
+            </div>
+
+            <div class="sens-section">
+                <h3>🔥 حساسية الحريق</h3>
+                <div class="sens-row">
+                    <label>🔥 حساسية الكشف: <button class="sens-info-icon red" onclick="showSensInfo('fire_sensitivity')" title="اضغط للتفاصيل">i</button></label>
+                    <input type="range" class="sens-slider" id="sensFireSensitivity" min="0.5" max="0.95" step="0.05" value="0.9" oninput="onSensInput('fire_sensitivity', this.value)">
+                    <span class="sens-value" id="sensFireSensitivityVal">0.9</span>
+                </div>
+                <div class="sens-row">
+                    <label>📐 أصغر مساحة (بكسل): <button class="sens-info-icon orange" onclick="showSensInfo('fire_min_area')" title="اضغط للتفاصيل">i</button></label>
+                    <input type="range" class="sens-slider" id="sensFireMinArea" min="100" max="2000" step="50" value="200" oninput="onSensInput('fire_min_area', this.value)">
+                    <span class="sens-value" id="sensFireMinAreaVal">200</span>
+                </div>
+                <div class="sens-row">
+                    <label>🎬 يحتاج حركة لهب: <button class="sens-info-icon red" onclick="showSensInfo('motion_required_fire')" title="اضغط للتفاصيل">i</button></label>
+                    <label class="sens-toggle"><input type="checkbox" id="sensFireMotion" onchange="onSensToggle('motion_required_fire', this.checked)"><span class="sens-toggle-slider"></span></label>
+                    <span style="font-size:0.78rem;color:#64748b;">✅ مفعّل = إنذارات كاذبة أقل</span>
+                </div>
+            </div>
+
+            <div class="sens-section" style="border-right-color:#64748b;">
+                <h3>💨 حساسية الدخان</h3>
+                <div class="sens-row">
+                    <label>💨 حساسية الكشف: <button class="sens-info-icon blue" onclick="showSensInfo('smoke_sensitivity')" title="اضغط للتفاصيل">i</button></label>
+                    <input type="range" class="sens-slider" id="sensSmokeSensitivity" min="0.3" max="0.9" step="0.05" value="0.7" oninput="onSensInput('smoke_sensitivity', this.value)">
+                    <span class="sens-value" id="sensSmokeSensitivityVal">0.7</span>
+                </div>
+                <div class="sens-row">
+                    <label>📐 أصغر مساحة (بكسل): <button class="sens-info-icon orange" onclick="showSensInfo('smoke_min_area')" title="اضغط للتفاصيل">i</button></label>
+                    <input type="range" class="sens-slider" id="sensSmokeMinArea" min="400" max="3000" step="100" value="800" oninput="onSensInput('smoke_min_area', this.value)">
+                    <span class="sens-value" id="sensSmokeMinAreaVal">800</span>
+                </div>
+                <div class="sens-row">
+                    <label>🎬 يحتاج حركة: <button class="sens-info-icon blue" onclick="showSensInfo('motion_required_smoke')" title="اضغط للتفاصيل">i</button></label>
+                    <label class="sens-toggle"><input type="checkbox" id="sensSmokeMotion" checked disabled><span class="sens-toggle-slider"></span></label>
+                    <span style="font-size:0.78rem;color:#64748b;">⚠️ دائماً مفعّل</span>
+                </div>
+            </div>
+
+            <div class="sens-section" style="border-right-color:#f59e0b;">
+                <h3>🌞 وضع النهار والليل</h3>
+                <div class="sens-row">
+                    <label>🕐 وضع التشغيل: <button class="sens-info-icon orange" onclick="showSensInfo('day_mode')" title="اضغط للتفاصيل">i</button></label>
+                    <div class="sens-mode-btns">
+                        <button class="sens-mode-btn" data-mode="day" onclick="setSensMode('day')">☀️ نهار</button>
+                        <button class="sens-mode-btn" data-mode="night" onclick="setSensMode('night')">🌙 ليل</button>
+                        <button class="sens-mode-btn active" data-mode="auto" onclick="setSensMode('auto')">🔄 تلقائي</button>
+                    </div>
+                </div>
+                <div class="sens-row" id="sensTimeRow">
+                    <label>⏰ وقت النهار:</label>
+                    <span style="font-weight:700;">من</span>
+                    <input type="time" class="sens-input" id="sensDayStart" value="07:00" onchange="onSensInput('day_start', this.value)">
+                    <span style="font-weight:700;">إلى</span>
+                    <input type="time" class="sens-input" id="sensDayEnd" value="17:00" onchange="onSensInput('day_end', this.value)">
+                </div>
+            </div>
+
+            <div class="sens-section" style="border-right-color:#ec4899;">
+                <h3>👤 كشف الأشخاص الغرباء</h3>
+                <div class="sens-row">
+                    <label>🎯 عتبة التعرف: <button class="sens-info-icon orange" onclick="showSensInfo('face_threshold')" title="اضغط للتفاصيل">i</button></label>
+                    <input type="range" class="sens-slider" id="sensFaceThreshold" min="0.85" max="1.3" step="0.05" value="1.0" oninput="onSensInput('face_threshold', this.value)">
+                    <span class="sens-value" id="sensFaceThresholdVal">1.0</span>
+                </div>
+                <div class="sens-row">
+                    <label>📐 أقل حجم للوجه: <button class="sens-info-icon green" onclick="showSensInfo('face_min_size')" title="اضغط للتفاصيل">i</button></label>
+                    <input type="range" class="sens-slider" id="sensFaceMinSize" min="40" max="150" step="10" value="80" oninput="onSensInput('face_min_size', this.value)">
+                    <span class="sens-value" id="sensFaceMinSizeVal">80</span>
+                </div>
+                <div class="sens-row">
+                    <label>⏱️ مدة بقاء الغريب: <button class="sens-info-icon green" onclick="showSensInfo('stranger_persist')" title="اضغط للتفاصيل">i</button></label>
+                    <input type="range" class="sens-slider" id="sensStrangerPersist" min="0" max="10" step="1" value="3" oninput="onSensInput('stranger_persist', this.value)">
+                    <span class="sens-value" id="sensStrangerPersistVal">3s</span>
+                </div>
+            </div>
+
+            <div class="sens-section" style="border-right-color:#8b5cf6;">
+                <h3>⏱️ فترات التهدئة (Cooldown)</h3>
+                <div class="sens-row">
+                    <label>🔥 تهدئة الحريق: <button class="sens-info-icon purple" onclick="showSensInfo('cooldown_fire')" title="اضغط للتفاصيل">i</button></label>
+                    <input type="number" class="sens-input" id="sensCooldownFire" value="180" min="30" max="600" onchange="onSensInput('cooldown_fire', this.value)">
+                    <span style="font-size:0.8rem;color:#64748b;">ثانية</span>
+                </div>
+                <div class="sens-row">
+                    <label>💨 تهدئة الدخان: <button class="sens-info-icon purple" onclick="showSensInfo('cooldown_smoke')" title="اضغط للتفاصيل">i</button></label>
+                    <input type="number" class="sens-input" id="sensCooldownSmoke" value="180" min="30" max="600" onchange="onSensInput('cooldown_smoke', this.value)">
+                    <span style="font-size:0.8rem;color:#64748b;">ثانية</span>
+                </div>
+                <div class="sens-row">
+                    <label>👤 تهدئة "شخص غريب": <button class="sens-info-icon purple" onclick="showSensInfo('cooldown_stranger')" title="اضغط للتفاصيل">i</button></label>
+                    <input type="number" class="sens-input" id="sensCooldownStranger" value="300" min="30" max="1800" onchange="onSensInput('cooldown_stranger', this.value)">
+                    <span style="font-size:0.8rem;color:#64748b;">ثانية</span>
+                </div>
+                <div class="sens-row">
+                    <label>🎓 تهدئة "فصل خطأ": <button class="sens-info-icon purple" onclick="showSensInfo('cooldown_wrong_class')" title="اضغط للتفاصيل">i</button></label>
+                    <input type="number" class="sens-input" id="sensCooldownWrongClass" value="240" min="30" max="1800" onchange="onSensInput('cooldown_wrong_class', this.value)">
+                    <span style="font-size:0.8rem;color:#64748b;">ثانية</span>
+                </div>
+            </div>
+
+            <div class="sens-actions">
+                <button class="sens-btn primary" onclick="saveSensPanel()">✅ حفظ وتطبيق</button>
+                <button class="sens-btn warning" onclick="loadSensDefaults()">🔄 استعادة الافتراضي</button>
+                <button class="sens-btn danger" onclick="closeSensPanel()">❌ إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🎛️ [Sensitivity Panel] نافذة الشرح التفصيلي -->
+    <div class="sens-info-overlay" id="sensInfoModal">
+        <div class="sens-info-box">
+            <div class="sens-info-header">
+                <div class="sens-info-title">
+                    <span class="sens-info-title-icon" id="sensInfoIcon">ℹ️</span>
+                    <span id="sensInfoTitle">—</span>
+                </div>
+                <button class="sens-info-close" onclick="closeSensInfo()">×</button>
+            </div>
+            <div class="sens-info-body" id="sensInfoBody"></div>
+            <button class="sens-info-close-btn" onclick="closeSensInfo()">✅ فهمت</button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/all.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+
+    <!-- 🎚️ [Resolution Control Helpers] — script مستقل في مكان صحيح -->
+    <script id="res-control-helpers">
+    (function() {
+        'use strict';
+        const RES_KEY_PREFIX = 'cam_res_';
+        const DEFAULT_RES = '1280';
+        const RES_LABELS = { '3840': '4K', '2560': '2K', '1920': 'Full HD', '1280': 'HD', '640': 'VGA' };
+
+        window.getSavedRes = function(cid) {
+            try {
+                if (cid === undefined || cid === null) return DEFAULT_RES;
+                return localStorage.getItem(RES_KEY_PREFIX + cid) || DEFAULT_RES;
+            } catch (e) { return DEFAULT_RES; }
+        };
+        window.getResLabel = function(val) { return RES_LABELS[String(val)] || String(val); };
+        window.resOptionHTML = function(value, label, currentRes) {
+            const sel = (String(value) === String(currentRes)) ? ' selected' : '';
+            return '<option value="' + value + '"' + sel + '>' + label + '</option>';
+        };
+        window.onResChange = function(cid, val) {
+            try {
+                localStorage.setItem(RES_KEY_PREFIX + cid, String(val));
+                const infoEl = document.getElementById('res-info-' + cid);
+                if (infoEl) infoEl.textContent = '📐 ' + window.getResLabel(val);
+                if (typeof window.restartCameraForClassroom === 'function') {
+                    window.restartCameraForClassroom(cid);
+                }
+                if (typeof window.showToastNotification === 'function') {
+                    window.showToastNotification('🎚️ ' + window.getResLabel(val), 'success');
+                }
+            } catch (e) {}
+        };
+        window.applyResToAll = function() {
+            try {
+                const sel = document.getElementById('globalResSelect');
+                if (!sel) return;
+                const val = sel.value;
+                const label = window.getResLabel(val);
+                const btn = document.getElementById('applyAllBtn');
+                const list = window.classrooms || [];
+                if (!list.length) {
+                    if (typeof window.showToastNotification === 'function')
+                        window.showToastNotification('⚠️ لا توجد فصول', 'error');
+                    return;
+                }
+                if (!confirm('سيتم تطبيق الدقة "' + label + '" على ' + list.length + ' فصل.\n\nمتابعة؟')) return;
+                if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التطبيق...'; }
+
+                list.forEach(function(c) {
+                    window.saveRes(c.id, val);
+                    const s = document.getElementById('res-' + c.id);
+                    if (s) s.value = val;
+                    const infoEl = document.getElementById('res-info-' + c.id);
+                    if (infoEl) infoEl.textContent = '📐 ' + label;
+                });
+                const cams = window.cameras || {};
+                Object.keys(cams).forEach(function(cidStr) {
+                    const cid = parseInt(cidStr, 10);
+                    if (!isNaN(cid) && typeof window.restartCameraForClassroom === 'function') {
+                        window.restartCameraForClassroom(cid);
+                    }
+                });
+                if (typeof window.showToastNotification === 'function')
+                    window.showToastNotification('✅ تم تطبيق ' + label + ' على ' + list.length + ' فصل', 'success');
+            } catch (e) { console.warn('[ResControl]', e); }
+            finally {
+                setTimeout(function() {
+                    const btn = document.getElementById('applyAllBtn');
+                    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-bolt"></i> تطبيق على الكل'; }
+                }, 1500);
+            }
+        };
+        window.saveRes = function(cid, val) {
+            try { localStorage.setItem(RES_KEY_PREFIX + cid, String(val)); } catch (e) {}
+        };
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                try {
+                    const sel = document.getElementById('globalResSelect');
+                    if (!sel) return;
+                    const list = window.classrooms || [];
+                    if (!list.length) return;
+                    const counts = {};
+                    list.forEach(function(c) {
+                        const r = window.getSavedRes(c.id);
+                        counts[r] = (counts[r] || 0) + 1;
+                    });
+                    let best = '1920', bestN = 0;
+                    Object.keys(counts).forEach(function(r) {
+                        if (counts[r] > bestN) { bestN = counts[r]; best = r; }
+                    });
+                    sel.value = best;
+                } catch (e) {}
+            }, 800);
+        });
+        console.log('✅ [ResControl Helpers] جاهز');
+    })();
+    </script>
+
+    <!-- 🎛️ [Sensitivity Panel] JavaScript v2.0 -->
+    <script id="sensitivity-panel-js">
+    (function() {
+        'use strict';
+        let _sensValues = {};
+
+        const SENS_EXPLAINS = {
+            'fire_sensitivity': { icon: '🔥', color: '#ef4444', title: 'حساسية كشف الحريق',
+                what: 'نسبة ثقة الكاشف عند تحليل ألوان الحريق. 0.5 = حذر، 0.95 = متحمس جداً.',
+                up: ['يكتشف حرائق صغيرة', '⚠️ إنذارات كاذبة أكثر بكثير', 'إضاءة صفراء وانعكاس شمس تُشعل الإنذار', '⚠️ لا ترفعها فوق 0.9'],
+                down: ['✅ إنذارات كاذبة أقل بكثير', '✅ أداء مستقر', 'قد تفوّت حرائق صغيرة جداً'],
+                recommend: '0.7' },
+            'fire_min_area': { icon: '📐', color: '#f59e0b', title: 'أصغر مساحة حريق',
+                what: 'أصغر حجم (بالبكسل) يمكن أن يُعتبر حريقاً. أقل من هذا يُتجاهل.',
+                up: ['✅ إنذارات كاذبة أقل', 'قد يفوّت حرائق صغيرة'],
+                down: ['إنذارات كثيرة من نقاط حمراء عابرة', '⚠️ لا تنزل تحت 150 بكسل'],
+                recommend: '400 - 500 بكسل' },
+            'motion_required_fire': { icon: '🎬', color: '#ef4444', title: 'يحتاج حركة لهب',
+                what: 'هل يجب أن يكون اللهب متحركاً ليُكتشف كحريق حقيقي؟',
+                up: ['✅ مفعّل = -70% إنذارات كاذبة!', 'الإضاءة الثابتة لا تُشعل الإنذار', 'شاشات وانعكاسات تُتجاهل'],
+                down: ['⚠️ إنذارات كاذبة كثيرة جداً', 'أي إضاءة صفراء أو حمراء = إنذار'],
+                recommend: 'مفعّل ✅' },
+            'smoke_sensitivity': { icon: '💨', color: '#3b82f6', title: 'حساسية كشف الدخان',
+                what: 'نسبة ثقة كاشف الدخان.',
+                up: ['⚠️ إنذارات كاذبة من البخار والضباب', 'مكيف الهواء قد يُشعل الإنذار'],
+                down: ['✅ إنذارات كاذبة أقل بكثير', 'قد يفوّت دخاناً في بدايته'],
+                recommend: '0.55' },
+            'smoke_min_area': { icon: '📐', color: '#f59e0b', title: 'أصغر مساحة دخان',
+                what: 'أصغر حجم دخان يمكن اكتشافه بالبكسل.',
+                up: ['✅ إنذارات كاذبة أقل من البخار', 'قد يفوّت دخاناً بعيداً'],
+                down: ['إنذارات من أي بخار ماء', '⚠️ لا تنزل تحت 500 بكسل'],
+                recommend: '1000 - 1200 بكسل' },
+            'motion_required_smoke': { icon: '🎬', color: '#3b82f6', title: 'يحتاج حركة للدخان',
+                what: 'هل يجب أن يكون الدخان متحركاً؟',
+                up: ['✅ مفعّل دائماً = صحيح', 'الدخان متحرك بطبيعته'],
+                down: ['⚠️ لا نوصي بتعطيله'],
+                recommend: 'مفعّل دائماً ✅' },
+            'day_mode': { icon: '🌞', color: '#f59e0b', title: 'وضع النهار والليل',
+                what: 'النظام يبدّل الحساسية تلقائياً حسب وقت اليوم.',
+                up: ['☀️ نهار: إضاءة قوية → حساسية أقل', 'يمنع انعكاس الشمس'],
+                down: ['🌙 ليل: إضاءة ضعيفة → حساسية أعلى'],
+                recommend: 'تلقائي 🔄' },
+            'face_threshold': { icon: '🎯', color: '#f59e0b', title: 'عتبة التعرف على الوجه',
+                what: 'حساسية مطابقة الوجه.',
+                up: ['✅ إنذارات كاذبة أقل بكثير', 'المعلمون لن يُصنَّفوا غريبين', 'قد يفوّت غريباً حقيقياً'],
+                down: ['⚠️ إنذارات كثيرة', 'لا تنزل تحت 0.9'],
+                recommend: '1.0 (أو 1.1)' },
+            'face_min_size': { icon: '📐', color: '#10b981', title: 'أقل حجم للوجه',
+                what: 'أقل حجم للوجه حتى يُعتبر للتحليل.',
+                up: ['✅ إنذارات كاذبة أقل', 'قد يفوّت غريباً بعيداً'],
+                down: ['يكتشف الوجوه البعيدة', 'إنذارات أكثر'],
+                recommend: '80 بكسل' },
+            'stranger_persist': { icon: '⏱️', color: '#10b981', title: 'مدة بقاء الغريب',
+                what: 'كم ثانية يجب أن يبقى الغريب قبل الإنذار؟',
+                up: ['✅ -60% إنذارات كاذبة', 'يستبعد المارّين في الممر'],
+                down: ['إنذار فوري لكل عابر', '⚠️ إنذارات كثيرة'],
+                recommend: '3 ثوانٍ' },
+            'cooldown_fire': { icon: '⏱️', color: '#8b5cf6', title: 'فترة تهدئة الحريق',
+                what: 'انتظار قبل إنذار حريق جديد.',
+                up: ['✅ إنذارات أقل بكثير', 'قد يفوّت حريقاً عائداً'],
+                down: ['إنذارات متكررة'],
+                recommend: '180 ثانية' },
+            'cooldown_smoke': { icon: '⏱️', color: '#8b5cf6', title: 'فترة تهدئة الدخان',
+                what: 'انتظار قبل إنذار دخان جديد.',
+                up: ['✅ إنذارات أقل'],
+                down: ['إنذارات متكررة'],
+                recommend: '180 ثانية' },
+            'cooldown_stranger': { icon: '⏱️', color: '#8b5cf6', title: 'فترة تهدئة "شخص غريب"',
+                what: 'انتظار قبل إنذار "شخص غريب" جديد.',
+                up: ['✅ -70% إنذارات كاذبة'],
+                down: ['⚠️ إنذارات كل دقيقة'],
+                recommend: '300 ثانية' },
+            'cooldown_wrong_class': { icon: '⏱️', color: '#8b5cf6', title: 'فترة تهدئة "فصل خطأ"',
+                what: 'انتظار قبل إنذار "طالب في فصل خطأ" جديد.',
+                up: ['✅ إنذارات أقل'],
+                down: ['⚠️ إنذارات متكررة'],
+                recommend: '240 ثانية' }
+        };
+
+        window.openSensPanel = function() {
+            const modal = document.getElementById('sensModal');
+            if (modal) { modal.classList.add('open'); loadSensValues(); }
+        };
+        window.closeSensPanel = function() {
+            const modal = document.getElementById('sensModal');
+            if (modal) modal.classList.remove('open');
+        };
+
+        window.showSensInfo = function(key) {
+            const info = SENS_EXPLAINS[key];
+            if (!info) return;
+            const modal = document.getElementById('sensInfoModal');
+            document.getElementById('sensInfoIcon').textContent = info.icon;
+            const titleEl = document.getElementById('sensInfoTitle');
+            titleEl.textContent = info.title;
+            titleEl.style.color = info.color;
+            const bodyEl = document.getElementById('sensInfoBody');
+            let html = '<div class="sens-info-block what"><div class="sens-info-block-title">📖 ما هو؟</div><div>' + info.what + '</div></div>';
+            if (info.up && info.up.length) {
+                html += '<div class="sens-info-block up"><div class="sens-info-block-title" style="color:#dc2626;">⬆️ إذا زدت القيمة:</div><ul>';
+                info.up.forEach(i => html += '<li>' + i + '</li>');
+                html += '</ul></div>';
+            }
+            if (info.down && info.down.length) {
+                html += '<div class="sens-info-block down"><div class="sens-info-block-title" style="color:#059669;">⬇️ إذا نقصت القيمة:</div><ul>';
+                info.down.forEach(i => html += '<li>' + i + '</li>');
+                html += '</ul></div>';
+            }
+            if (info.recommend) {
+                html += '<div class="sens-info-block recommend"><div class="sens-info-block-title" style="color:#d97706;">🎯 القيمة الموصى بها:</div><div class="sens-info-recommend-value">' + info.recommend + '</div></div>';
+            }
+            bodyEl.innerHTML = html;
+            modal.classList.add('open');
+        };
+        window.closeSensInfo = function() {
+            const modal = document.getElementById('sensInfoModal');
+            if (modal) modal.classList.remove('open');
+        };
+
+        window.loadSensValues = async function() {
+            try {
+                const r = await fetch('/api/detection/settings');
+                const d = await r.json();
+                if (d.success) { _sensValues = d.settings || {}; applySensToUI(_sensValues); }
+            } catch (e) {}
+        };
+
+        function applySensToUI(s) {
+            const set = (id, v, sfx) => {
+                const el = document.getElementById(id);
+                if (el && v !== undefined) el.value = v;
+                const vel = document.getElementById(id + 'Val');
+                if (vel && v !== undefined) vel.textContent = v + (sfx || '');
+            };
+            set('sensFireSensitivity', s.fire_sensitivity);
+            set('sensFireMinArea', s.fire_min_area);
+            set('sensSmokeSensitivity', s.smoke_sensitivity);
+            set('sensSmokeMinArea', s.smoke_min_area);
+            set('sensFaceThreshold', s.face_threshold);
+            set('sensFaceMinSize', s.face_min_size);
+            set('sensStrangerPersist', s.stranger_persist, 's');
+            if (s.motion_required_fire !== undefined) {
+                const el = document.getElementById('sensFireMotion');
+                if (el) el.checked = !!s.motion_required_fire;
+            }
+            if (s.day_mode !== undefined) setSensMode(s.day_mode, true);
+            if (s.day_start) { const el = document.getElementById('sensDayStart'); if (el) el.value = s.day_start; }
+            if (s.day_end) { const el = document.getElementById('sensDayEnd'); if (el) el.value = s.day_end; }
+            if (s.cooldown_fire) { const el = document.getElementById('sensCooldownFire'); if (el) el.value = s.cooldown_fire; }
+            if (s.cooldown_smoke) { const el = document.getElementById('sensCooldownSmoke'); if (el) el.value = s.cooldown_smoke; }
+            if (s.cooldown_stranger) { const el = document.getElementById('sensCooldownStranger'); if (el) el.value = s.cooldown_stranger; }
+            if (s.cooldown_wrong_class) { const el = document.getElementById('sensCooldownWrongClass'); if (el) el.value = s.cooldown_wrong_class; }
+        }
+
+        window.onSensInput = function(key, value) {
+            const map = {
+                'fire_sensitivity': 'sensFireSensitivityVal', 'fire_min_area': 'sensFireMinAreaVal',
+                'smoke_sensitivity': 'sensSmokeSensitivityVal', 'smoke_min_area': 'sensSmokeMinAreaVal',
+                'face_threshold': 'sensFaceThresholdVal', 'face_min_size': 'sensFaceMinSizeVal',
+                'stranger_persist': 'sensStrangerPersistVal'
+            };
+            const el = document.getElementById(map[key]);
+            if (el) el.textContent = (key === 'stranger_persist') ? value + 's' : value;
+            _sensValues[key] = value;
+        };
+        window.onSensToggle = function(key, v) { _sensValues[key] = v; };
+        window.setSensMode = function(mode, silent) {
+            document.querySelectorAll('.sens-mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+            _sensValues['day_mode'] = mode;
+            const row = document.getElementById('sensTimeRow');
+            if (row) row.style.display = (mode === 'auto') ? 'flex' : 'none';
+            if (!silent) saveSensToServer();
+        };
+        window.saveSensPanel = async function() {
+            await saveSensToServer();
+            showSensToast('✅ تم الحفظ');
+            setTimeout(closeSensPanel, 700);
+        };
+        window.loadSensDefaults = function() {
+            if (!confirm('استعادة الافتراضي؟')) return;
+            _sensValues = {
+                'fire_sensitivity': 0.9, 'fire_min_area': 200, 'motion_required_fire': false,
+                'smoke_sensitivity': 0.7, 'smoke_min_area': 800,
+                'day_mode': 'auto', 'day_start': '07:00', 'day_end': '17:00',
+                'face_threshold': 1.0, 'face_min_size': 80, 'stranger_persist': 3,
+                'cooldown_fire': 180, 'cooldown_smoke': 180,
+                'cooldown_stranger': 300, 'cooldown_wrong_class': 240
+            };
+            applySensToUI(_sensValues);
+        };
+        window.applySensTemplate = function(name) {
+            const t = {
+                strict: { 'fire_sensitivity': 0.9, 'fire_min_area': 150, 'motion_required_fire': false, 'smoke_sensitivity': 0.8, 'smoke_min_area': 600, 'face_threshold': 0.9, 'face_min_size': 60, 'stranger_persist': 1 },
+                balanced: { 'fire_sensitivity': 0.8, 'fire_min_area': 300, 'motion_required_fire': true, 'smoke_sensitivity': 0.7, 'smoke_min_area': 800, 'face_threshold': 1.0, 'face_min_size': 80, 'stranger_persist': 3 },
+                tolerant: { 'fire_sensitivity': 0.6, 'fire_min_area': 600, 'motion_required_fire': true, 'smoke_sensitivity': 0.5, 'smoke_min_area': 1500, 'face_threshold': 1.15, 'face_min_size': 100, 'stranger_persist': 5 },
+                night: { 'fire_sensitivity': 0.5, 'fire_min_area': 400, 'motion_required_fire': true, 'smoke_sensitivity': 0.45, 'smoke_min_area': 1200, 'face_threshold': 1.1, 'face_min_size': 90, 'stranger_persist': 4 }
+            }[name];
+            if (!t) return;
+            Object.assign(_sensValues, t);
+            applySensToUI(_sensValues);
+            showSensToast('🎯 تم تطبيق: ' + name);
+        };
+        async function saveSensToServer() {
+            try {
+                const r = await fetch('/api/detection/settings', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(_sensValues)
+                });
+                const d = await r.json();
+                if (!d.success) showSensToast('❌ فشل', true);
+            } catch (e) { showSensToast('❌ خطأ', true); }
+        }
+        function showSensToast(msg, isError) {
+            const t = document.createElement('div');
+            t.className = 'sens-toast';
+            if (isError) t.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 2500);
+        }
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('sensModal');
+            if (modal && e.target === modal) closeSensPanel();
+            const infoModal = document.getElementById('sensInfoModal');
+            if (infoModal && e.target === infoModal) closeSensInfo();
+        });
+        console.log('✅ [Sensitivity Panel v2.0] جاهز');
+    })();
+    </script>
+
+    <script>
+    // ═══════════════════════════════════════════════════════════════════════
+    // 🎯 المنطق الأساسي لصفحة الفصول
+    // ═══════════════════════════════════════════════════════════════════════
+    const canvas = document.getElementById('neuralNetCanvas');
+    const ctx = canvas.getContext('2d');
+    let points = [];
+    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.addEventListener('resize', resizeCanvas); resizeCanvas();
+    class Point { constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5; this.radius = Math.random() * 2 + 1; }
+        update() { this.x += this.vx; this.y += this.vy; if (this.x < 0 || this.x > canvas.width) this.vx *= -1; if (this.y < 0 || this.y > canvas.height) this.vy *= -1; }
+        draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--primary'); ctx.fill(); }
+    }
+    for (let i = 0; i < 50; i++) points.push(new Point());
+    function animateCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); points.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animateCanvas); }
+    animateCanvas();
+
+    window.classrooms = [];
+    let currentMode = 'all';
+    let selectedClassrooms = [];
+    window.cameras = {};
+    let lastAlertCount = 0;
+    let audioCtx = null;
+
+    const ALERT_SOUNDS = {
+        'fire': { name: 'حريق/دخان', frequencies: [1200, 1200, 1200, 1200], pattern: [0, 0.35, 0.7, 1.05], duration: 0.3, type: 'sawtooth', volume: 0.4 },
+        'stranger': { name: 'شخص غريب', frequencies: [900, 900], pattern: [0, 0.18], duration: 0.15, type: 'square', volume: 0.35 },
+        'wrong_class': { name: 'طالب في فصل خطأ', frequencies: [600], pattern: [0], duration: 0.25, type: 'sine', volume: 0.25 },
+        'banned_item': { name: 'مادة ممنوعة', frequencies: [750, 750], pattern: [0, 0.25], duration: 0.2, type: 'triangle', volume: 0.3 },
+        'unauthorized_entry': { name: 'دخول غير مصرح', frequencies: [700, 700, 700], pattern: [0, 0.2, 0.4], duration: 0.15, type: 'square', volume: 0.3 },
+        'default': { name: 'تنبيه عام', frequencies: [800, 1000], pattern: [0, 0.15], duration: 0.15, type: 'sine', volume: 0.3 }
+    };
+
+    const MUTE_KEY = 'alertMuteUntil';
+    function isMuted() { const until = parseInt(localStorage.getItem(MUTE_KEY) || '0'); return until > Date.now(); }
+    function getMuteRemaining() { const until = parseInt(localStorage.getItem(MUTE_KEY) || '0'); const remaining = until - Date.now(); return remaining > 0 ? remaining : 0; }
+    function muteAlerts(minutes) { const until = Date.now() + (minutes * 60 * 1000); localStorage.setItem(MUTE_KEY, until.toString()); updateMuteButton(); document.getElementById('muteMenu').classList.remove('open'); showToastNotification(`🔇 تم كتم الصوت لـ ${minutes} دقيقة`, 'success'); }
+    function unmuteAlerts() { localStorage.removeItem(MUTE_KEY); updateMuteButton(); document.getElementById('muteMenu').classList.remove('open'); showToastNotification('🔊 تم إلغاء كتم الصوت', 'success'); }
+    function updateMuteButton() {
+        const btn = document.getElementById('muteBtn');
+        if (!btn) return;
+        if (isMuted()) {
+            const remaining = getMuteRemaining();
+            const mins = Math.floor(remaining / 60000);
+            const secs = Math.floor((remaining % 60000) / 1000);
+            btn.innerHTML = `<i class="fas fa-volume-mute"></i> كتم (${mins}:${String(secs).padStart(2, '0')})`;
+            btn.style.background = '#ef4444';
+            btn.style.color = '#fff';
+        } else {
+            btn.innerHTML = `<i class="fas fa-volume-up"></i> الصوت مفعّل`;
+            btn.style.background = '#10b981';
+            btn.style.color = '#fff';
+        }
+    }
+    setInterval(() => {
+        const btn = document.getElementById('muteBtn');
+        const wasMuted = btn?.dataset.wasMuted === 'true';
+        const nowMuted = isMuted();
+        updateMuteButton();
+        if (wasMuted && !nowMuted) { showToastNotification('🔊 عاد التنبيه الصوتي تلقائياً', 'success'); }
+        if (btn) btn.dataset.wasMuted = nowMuted ? 'true' : 'false';
+    }, 1000);
+    function toggleMuteMenu(event) { event.stopPropagation(); const menu = document.getElementById('muteMenu'); menu.classList.toggle('open'); }
+    document.addEventListener('click', (e) => {
+        const menu = document.getElementById('muteMenu');
+        const btn = document.getElementById('muteBtn');
+        if (menu && !menu.contains(e.target) && btn && !btn.contains(e.target)) { menu.classList.remove('open'); }
+    });
+    function playAlertSound(alertType) {
+        if (isMuted()) return;
+        const config = ALERT_SOUNDS[alertType] || ALERT_SOUNDS['default'];
+        try {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const now = audioCtx.currentTime;
+            config.frequencies.forEach((freq, i) => {
+                const offset = config.pattern[i] || 0;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.frequency.value = freq;
+                osc.type = config.type || 'sine';
+                gain.gain.setValueAtTime(config.volume, now + offset);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + offset + config.duration);
+                osc.start(now + offset);
+                osc.stop(now + offset + config.duration + 0.05);
+            });
+        } catch (e) {}
+    }
+
+    async function loadClassrooms() {
+        try {
+            const r = await fetch('/api/classrooms/list-for-monitor');
+            window.classrooms = await r.json();
+            document.getElementById('countAll').textContent = window.classrooms.length;
+            if (!window.classrooms.length) {
+                document.getElementById('mainGrid').innerHTML = `<div class="empty-state" style="grid-column: 1/-1;"><i class="fas fa-school"></i><h3>لا توجد فصول</h3><p>اذهب إلى <a href="/settings">إعدادات النظام</a> وأضف فصلاً جديداً.</p></div>`;
+                return;
+            }
+            if (currentMode === 'all') selectedClassrooms = [...window.classrooms];
+            else selectedClassrooms = window.classrooms.slice(0, currentMode === 'double' ? 2 : 1);
+            renderGrid();
+        } catch (e) {
+            document.getElementById('mainGrid').innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-exclamation-triangle" style="color:var(--danger);"></i><h3>فشل التحميل</h3><p>${e.message}</p></div>`;
+        }
+    }
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.mode-btn[data-mode]').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+        stopAllCameras();
+        if (mode === 'all' || mode === 'live') selectedClassrooms = [...window.classrooms];
+        else if (mode === 'single') selectedClassrooms = window.classrooms.slice(0, 1);
+        else if (mode === 'double') selectedClassrooms = window.classrooms.slice(0, 2);
+        const grid = document.getElementById('mainGrid');
+        grid.className = 'main-grid mode-' + mode;
+        renderGrid();
+    }
+
+    function stopAllCameras() {
+        Object.values(window.cameras).forEach(cam => {
+            if (cam.stream) cam.stream.getTracks().forEach(t => t.stop());
+            if (cam.detectorInterval) clearInterval(cam.detectorInterval);
+        });
+        window.cameras = {};
+    }
+
+    function renderGrid() {
+        const grid = document.getElementById('mainGrid');
+        grid.innerHTML = '';
+        if (!selectedClassrooms.length) { grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-info-circle"></i><h3>لا يوجد فصول للعرض</h3></div>`; return; }
+        selectedClassrooms.forEach(cls => grid.appendChild(createCameraCard(cls)));
+        selectedClassrooms.forEach(cls => startCameraForClassroom(cls));
+    }
+
+    function createCameraCard(cls) {
+        const card = document.createElement('div');
+        card.className = 'camera-card';
+        card.id = 'card-' + cls.id;
+        const typeLabels = { 'classroom': '🏫', 'corridor': '🚪', 'outdoor': '🌐' };
+        const isLaptop = isLaptopMode(cls.id);
+        const savedRes = (typeof getSavedRes === 'function') ? getSavedRes(cls.id) : '1280';
+        const resLabel = (typeof getResLabel === 'function') ? getResLabel(savedRes) : 'HD';
+        const resOptions = (typeof resOptionHTML === 'function') ? resOptionHTML : function(v, l, c) { return '<option value="' + v + '"' + (String(v) === String(c) ? ' selected' : '') + '>' + l + '</option>'; };
+        card.innerHTML = `
+            <div class="camera-label"><span class="dot"></span>${typeLabels[cls.camera_type] || '📹'} ${cls.name}</div>
+            <div class="camera-toggle-bar">
+                <span class="toggle-label ${!isLaptop ? 'active' : ''}" id="iplabel-${cls.id}">📹 كاميرا IP</span>
+                <label class="switch">
+                    <input type="checkbox" id="toggle-${cls.id}" ${isLaptop ? 'checked' : ''} onchange="onToggleCamera(${cls.id}, this.checked)">
+                    <span class="slider-toggle"></span>
+                </label>
+                <span class="toggle-label ${isLaptop ? 'active' : ''}" id="laplabel-${cls.id}">💻 اللابتوب</span>
+            </div>
+            <div class="camera-toggle-bar" style="border-top:1px solid rgba(255,255,255,0.1);">
+                <span class="toggle-label active">🎚️ الدقة:</span>
+                <select id="res-${cls.id}" class="res-select-inline" onchange="onResChange(${cls.id}, this.value)">
+                    ${resOptions('3840', '4K', savedRes)}
+                    ${resOptions('2560', '2K', savedRes)}
+                    ${resOptions('1920', 'Full HD', savedRes)}
+                    ${resOptions('1280', 'HD', savedRes)}
+                    ${resOptions('640', 'VGA', savedRes)}
+                </select>
+                <span class="res-info-badge" id="res-info-${cls.id}">📐 ${resLabel}</span>
+            </div>
+            <div class="camera-stage" id="stage-${cls.id}">
+                <div class="camera-loading"><div class="spinner"></div><div>جاري الاتصال بالكاميرا...</div></div>
+                <canvas id="canvas-${cls.id}"></canvas>
+            </div>
+            <div class="camera-stats">
+                <div class="item"><div class="v" id="faces-${cls.id}">0</div><div class="l">وجوه</div></div>
+                <div class="item"><div class="v" id="recognized-${cls.id}">0</div><div class="l">تم التعرف</div></div>
+                <div class="item"><div class="v" id="alerts-${cls.id}">0</div><div class="l">إنذارات</div></div>
+                <div class="item"><div class="v" id="status-${cls.id}">⏳</div><div class="l">الحالة</div></div>
+            </div>`;
+        return card;
+    }
+
+    function isLaptopMode(classroomId) {
+        return localStorage.getItem('cam_mode_' + classroomId) === 'laptop';
+    }
+
+    function onToggleCamera(classroomId, isLaptop) {
+        localStorage.setItem('cam_mode_' + classroomId, isLaptop ? 'laptop' : 'ip');
+        const ipl = document.getElementById('iplabel-' + classroomId);
+        const lapl = document.getElementById('laplabel-' + classroomId);
+        if (ipl) ipl.classList.toggle('active', !isLaptop);
+        if (lapl) lapl.classList.toggle('active', isLaptop);
+        restartCameraForClassroom(classroomId);
+    }
+
+    window.restartCameraForClassroom = function(classroomId) {
+        const cam = window.cameras[classroomId];
+        if (cam) {
+            if (cam.detectorInterval) clearInterval(cam.detectorInterval);
+            if (cam.stream) cam.stream.getTracks().forEach(t => t.stop());
+            if (cam.video && cam.video.srcObject) cam.video.srcObject.getTracks().forEach(t => t.stop());
+        }
+        const cls = window.classrooms.find(c => c.id === classroomId);
+        if (!cls) return;
+        startCameraForClassroom(cls);
+    };
+
+    async function startCameraForClassroom(cls) {
+        const stage = document.getElementById('stage-' + cls.id);
+        const canvas = document.getElementById('canvas-' + cls.id);
+        if (!stage) return;
+        const loading = stage.querySelector('.camera-loading');
+        if (isLaptopMode(cls.id)) {
+            await startLaptopStreamForClass(cls.id, stage, canvas, loading);
+        } else {
+            startIPStreamForClass(cls.id, cls.camera_ip, stage, canvas, loading);
+        }
+    }
+
+    function startIPStreamForClass(cid, cameraIp, stage, canvas, loading) {
+        const oldVid = document.getElementById('video-' + cid);
+        if (oldVid) { if (oldVid.srcObject) oldVid.srcObject.getTracks().forEach(t => t.stop()); oldVid.remove(); }
+        const oldImg = document.getElementById('img-' + cid);
+        if (oldImg) oldImg.remove();
+        if (loading) loading.style.display = 'flex';
+
+        const img = document.createElement('img');
+        img.id = 'img-' + cid;
+        img.style.cssText = 'display:block; width:100%; height:auto; max-height:60vh; object-fit:contain;';
+        const savedRes = (typeof getSavedRes === 'function' ? getSavedRes(cid) : '1280');
+        const feedUrl = '/video_feed?src=' + encodeURIComponent(cameraIp) + '&res=' + savedRes + '&nocache=' + Date.now();
+        img.onload = () => { if (loading) loading.style.display = 'none'; };
+        img.onerror = () => { if (loading) loading.innerHTML = '<i class="fas fa-exclamation-triangle" style="font-size:2rem;color:#ef4444;"></i><div>فشل الاتصال</div>'; };
+        img.src = feedUrl;
+
+        if (canvas && canvas.parentElement === stage) stage.insertBefore(img, canvas);
+        else stage.appendChild(img);
+
+        const detectorInterval = setInterval(() => runDetection(cid), 2500);
+        window.cameras[cid] = { img, canvas, detectorInterval, mode: 'ip' };
+    }
+
+    async function startLaptopStreamForClass(cid, stage, canvas, loading) {
+        const oldVid = document.getElementById('video-' + cid);
+        if (oldVid) { if (oldVid.srcObject) oldVid.srcObject.getTracks().forEach(t => t.stop()); oldVid.remove(); }
+        const oldImg = document.getElementById('img-' + cid);
+        if (oldImg) oldImg.remove();
+
+        if (loading) {
+            loading.style.display = 'flex';
+            loading.innerHTML = '<div class="spinner"></div><div>جاري تشغيل كاميرا اللابتوب...</div>';
+        }
+        const video = document.createElement('video');
+        video.id = 'video-' + cid;
+        video.autoplay = true; video.playsInline = true; video.muted = true;
+        video.style.cssText = 'display:block; width:100%; height:auto; max-height:60vh; object-fit:contain;';
+        if (canvas && canvas.parentElement === stage) stage.insertBefore(video, canvas);
+        else stage.appendChild(video);
+        try {
+            const _savedRes = parseInt((typeof getSavedRes === 'function' ? getSavedRes(cid) : '1280'), 10) || 1280;
+            const _savedH = Math.round(_savedRes * 9 / 16);
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'user', width: { ideal: _savedRes }, height: { ideal: _savedH } }
+            });
+            video.srcObject = stream;
+            await video.play();
+            if (loading) loading.style.display = 'none';
+            const detectorInterval = setInterval(() => runDetection(cid), 2500);
+            window.cameras[cid] = { video, stream, canvas, detectorInterval, mode: 'laptop' };
+        } catch (err) {
+            if (loading) loading.innerHTML = '<i class="fas fa-exclamation-triangle" style="font-size:2rem;color:#ef4444;"></i><div>فشل اللابتوب</div>';
+            console.error('Laptop error:', err);
+        }
+    }
+
+    async function runDetection(classroomId) {
+        const cam = window.cameras[classroomId];
+        if (!cam) return;
+        const source = cam.mode === 'laptop' ? cam.video : cam.img;
+        if (!source) return;
+        let srcW, srcH;
+        if (cam.mode === 'laptop') {
+            if (source.readyState < 2 || !source.videoWidth) return;
+            srcW = source.videoWidth; srcH = source.videoHeight;
+        } else {
+            if (!source.complete || !source.naturalWidth) return;
+            srcW = source.naturalWidth; srcH = source.naturalHeight;
+        }
+        try {
+            const MAX_DIM = 960;
+            const scale = Math.min(1, MAX_DIM / Math.max(srcW, srcH));
+            const newW = Math.round(srcW * scale);
+            const newH = Math.round(srcH * scale);
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = newW; tempCanvas.height = newH;
+            const tCtx = tempCanvas.getContext('2d');
+            tCtx.drawImage(source, 0, 0, newW, newH);
+            const imgData = tempCanvas.toDataURL('image/jpeg', 0.85);
+            if (!imgData || imgData.length < 500) return;
+            const r = await fetch('/api/classroom/detect', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ classroom_id: classroomId, image: imgData }) });
+            const d = await r.json();
+            if (!d.success) { document.getElementById('status-' + classroomId).textContent = '⚠️'; return; }
+            document.getElementById('faces-' + classroomId).textContent = d.count || 0;
+            let recCount = (d.names || []).filter(n => n !== 'غير معروف').length;
+            document.getElementById('recognized-' + classroomId).textContent = recCount;
+            drawDetectionBoxes(classroomId, d, srcW, srcH, cam);
+            const hasFire = d.fire_detected || d.smoke_detected;
+            const statusEl = document.getElementById('status-' + classroomId);
+            const card = document.getElementById('card-' + classroomId);
+            if (hasFire) {
+                statusEl.textContent = '🔥';
+                statusEl.className = 'v danger';
+                if (card) { card.classList.add('fire-alerting'); setTimeout(() => card.classList.remove('fire-alerting'), 8000); }
+                const alertsEl = document.getElementById('alerts-' + classroomId);
+                alertsEl.textContent = (parseInt(alertsEl.textContent) || 0) + 1;
+                playAlertSound('fire');
+                const cls = window.classrooms.find(c => c.id === classroomId);
+                showPopupAlert({ isFire: true, customTitle: d.fire_detected ? `🔥 حريق في ${cls ? cls.name : ''}!` : `💨 دخان في ${cls ? cls.name : ''}!`, alerts_created: 1 });
+            } else if (d.alerts_created > 0) {
+                statusEl.textContent = '🚨';
+                statusEl.className = 'v danger';
+                if (card) { card.classList.add('alerting'); setTimeout(() => card.classList.remove('alerting'), 5000); }
+                const alertsEl = document.getElementById('alerts-' + classroomId);
+                alertsEl.textContent = (parseInt(alertsEl.textContent) || 0) + d.alerts_created;
+                let soundType = 'default';
+                if (d.statuses && d.statuses.length > 0) {
+                    const s = d.statuses[0];
+                    if (s === 'stranger') soundType = 'stranger';
+                    else if (s === 'wrong_class') soundType = 'wrong_class';
+                }
+                playAlertSound(soundType);
+                showPopupAlert(d);
+            } else { statusEl.textContent = '✅'; statusEl.className = 'v'; }
+        } catch (e) { console.error('❌ خطأ في الكشف:', e); }
+    }
+
+    function drawDetectionBoxes(classroomId, data, srcW, srcH, cam) {
+        const canvas = cam.canvas;
+        const imgEl = cam.mode === 'laptop' ? cam.video : cam.img;
+        if (!canvas || !imgEl) return;
+        const rect = imgEl.getBoundingClientRect();
+        const stage = imgEl.parentElement;
+        const stageRect = stage.getBoundingClientRect();
+        if (canvas.width !== stageRect.width || canvas.height !== stageRect.height) { canvas.width = stageRect.width; canvas.height = stageRect.height; }
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const dispScale = Math.min(rect.width / srcW, rect.height / srcH);
+        const renderedW = srcW * dispScale;
+        const renderedH = srcH * dispScale;
+        const offsetX = (rect.width - renderedW) / 2 + (imgEl.offsetLeft || 0);
+        const offsetY = (rect.height - renderedH) / 2 + (imgEl.offsetTop || 0);
+        const sendScale = Math.min(1, 960 / Math.max(srcW, srcH));
+        (data.locations || []).forEach((loc, i) => {
+            const status = (data.statuses || [])[i] || 'ok';
+            const name = (data.names || [])[i] || 'غير معروف';
+            const xNat = loc.left / sendScale;
+            const yNat = loc.top / sendScale;
+            const wNat = (loc.right - loc.left) / sendScale;
+            const hNat = (loc.bottom - loc.top) / sendScale;
+            const x = xNat * dispScale + offsetX;
+            const y = yNat * dispScale + offsetY;
+            const w = wNat * dispScale;
+            const h = hNat * dispScale;
+            let color = '#10b981';
+            let label = name;
+            if (status === 'stranger') { color = '#ef4444'; label = '👤 ' + name; }
+            else if (status === 'wrong_class') { color = '#f59e0b'; label = '⚠️ ' + name; }
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            ctx.strokeRect(x, y, w, h);
+            ctx.font = 'bold 15px Cairo, Arial, sans-serif';
+            const tw = ctx.measureText(label).width + 16;
+            ctx.fillStyle = 'rgba(0,0,0,0.8)';
+            ctx.fillRect(x, y - 28, tw, 24);
+            ctx.fillStyle = color;
+            ctx.fillText(label, x + 8, y - 10);
+        });
+        if (data.fire_regions && data.fire_regions.length > 0) {
+            data.fire_regions.forEach(region => {
+                const xNat = region.x / sendScale;
+                const yNat = region.y / sendScale;
+                const wNat = region.w / sendScale;
+                const hNat = region.h / sendScale;
+                const x = xNat * dispScale + offsetX;
+                const y = yNat * dispScale + offsetY;
+                const w = wNat * dispScale;
+                const h = hNat * dispScale;
+                ctx.strokeStyle = '#ff0000';
+                ctx.lineWidth = 5;
+                ctx.strokeRect(x, y, w, h);
+                ctx.font = 'bold 22px Cairo, Arial, sans-serif';
+                const label = '🔥 حريق!';
+                const tw = ctx.measureText(label).width + 20;
+                ctx.fillStyle = 'rgba(255, 0, 0, 0.9)';
+                ctx.fillRect(x, y - 34, tw, 30);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText(label, x + 10, y - 12);
+            });
+        }
+    }
+
+    function showPopupAlert(data) {
+        const popup = document.getElementById('popupAlert');
+        const title = document.getElementById('popupTitle');
+        const desc = document.getElementById('popupDesc');
+        let msg = data.customTitle || '🚨 إنذار جديد';
+        if (!data.customTitle) {
+            if (data.statuses && data.statuses.includes('stranger')) msg = '👤❓ شخص غريب في الفصل';
+            else if (data.statuses && data.statuses.includes('wrong_class')) msg = '🎓⚠️ طالب في فصل خطأ';
+            else if (data.statuses && data.statuses.includes('fire')) msg = '🔥 حريق/دخان في الفصل';
+        }
+        if (data.isFire) popup.classList.add('fire');
+        else popup.classList.remove('fire');
+        title.textContent = msg;
+        desc.textContent = `عدد التنبيهات: ${data.alerts_created || 1}`;
+        popup.classList.add('show');
+        setTimeout(() => { popup.classList.remove('show'); popup.classList.remove('fire'); }, data.isFire ? 8000 : 5000);
+    }
+
+    window.showToastNotification = function(msg, type) {
+        const d = document.createElement('div');
+        d.style.cssText = `position:fixed; top:20px; right:20px; z-index:9999; background:${type === 'success' ? '#10b981' : '#ef4444'}; color:#fff; padding:14px 24px; border-radius:12px; font-weight:700; box-shadow:0 4px 15px rgba(0,0,0,0.2);`;
+        d.textContent = msg;
+        document.body.appendChild(d);
+        setTimeout(() => d.remove(), 3000);
+    };
+
+    function toggleAlertsPanel() {
+        const panel = document.getElementById('alertsPanel');
+        const overlay = document.getElementById('panelOverlay');
+        panel.classList.toggle('open');
+        overlay.classList.toggle('open');
+        if (panel.classList.contains('open')) loadAlerts();
+    }
+
+    async function loadAlerts() {
+        try {
+            const r = await fetch('/api/alerts?limit=50');
+            const alerts = await r.json();
+            const body = document.getElementById('alertsPanelBody');
+            if (!alerts.length) { body.innerHTML = '<div class="no-alerts">🎉 لا توجد إنذارات</div>'; return; }
+            const typeLabels = { 'stranger': '👤❓ شخص غريب', 'wrong_class': '🎓⚠️ فصل خطأ', 'banned_item': '🚫 مادة ممنوعة', 'fire': '🔥 حريق/دخان', 'unauthorized_entry': '🚷 دخول غير مصرح' };
+            body.innerHTML = alerts.map(a => {
+                const typeCls = 'type-' + a.alert_type;
+                const unreadCls = a.is_read ? '' : 'unread';
+                const time = a.created_at ? new Date(a.created_at).toLocaleString('ar-EG') : '';
+                const img = a.image_path ? `<img loading="lazy" src="/${a.image_path}" class="a-img" onclick="window.open('/${a.image_path}', '_blank')">` : '';
+                return `<div class="alert-item ${typeCls} ${unreadCls}" onclick="markAlertRead(${a.id}, this)">
+                    <div class="a-header"><div class="a-type">${typeLabels[a.alert_type] || a.alert_type}</div><div class="a-time">${time}</div></div>
+                    <div class="a-desc">${a.description || ''}</div>
+                    ${a.classroom_name ? `<div class="a-classroom">🏫 ${a.classroom_name}</div>` : ''}
+                    ${img}
+                </div>`;
+            }).join('');
+        } catch (e) {}
+    }
+
+    async function markAlertRead(alertId, el) {
+        try { await fetch('/api/alerts/' + alertId + '/read', { method: 'POST' }); if (el) el.classList.remove('unread'); updateUnreadCount(); } catch (e) {}
+    }
+    async function markAllRead() {
+        try { await fetch('/api/alerts/mark-all-read', { method: 'POST' }); loadAlerts(); updateUnreadCount(); } catch (e) {}
+    }
+    async function updateUnreadCount() {
+        try { const r = await fetch('/api/alerts/unread-count'); const d = await r.json(); document.getElementById('alertsUnreadCount').textContent = d.count || 0; lastAlertCount = d.count || 0; } catch (e) {}
+    }
+    setInterval(updateUnreadCount, 5000);
+
+    const btnDark = document.getElementById('darkModeToggle');
+    if (localStorage.getItem('darkMode') === 'enabled') { document.body.classList.add('dark-mode'); btnDark.innerText = '☀️'; }
+    btnDark.onclick = () => { document.body.classList.toggle('dark-mode'); const isDark = document.body.classList.contains('dark-mode'); localStorage.darkMode = isDark ? 'enabled' : 'disabled'; btnDark.innerText = isDark ? '☀️' : '🌙'; };
+    document.getElementById('menuToggle').onclick = () => document.getElementById('sidebar').classList.toggle('show');
+    loadClassrooms().then(() => updateUnreadCount());
+    updateMuteButton();
+    window.addEventListener('beforeunload', () => stopAllCameras());
+    if ('serviceWorker' in navigator) { navigator.serviceWorker.register("{{ url_for('static', filename='service-worker.js') }}").then(() => console.log('✅ SW')).catch(err => console.log('❌ SW', err)); }
+
+    function toUserAvatarUrl(path) {
+        if (!path) return '';
+        if (path.startsWith('http') || path.startsWith('data:')) return path;
+        return '/' + path.replace(/\\/g, '/').replace(/^\/+/, '');
+    }
+    (async function loadCurrentUserAvatar() {
+        try {
+            const r = await fetch('/api/me/profile');
+            if (!r.ok) return;
+            const d = await r.json();
+            if (!d.success) return;
+            const imgEl = document.getElementById('userAvatarImg');
+            const placeholder = document.getElementById('userAvatarPlaceholder');
+            const nameEl = document.getElementById('userAvatarName');
+            const roleEl = document.getElementById('userAvatarRole');
+            if (nameEl) nameEl.textContent = d.name || '—';
+            if (roleEl) roleEl.textContent = d.role || '—';
+            if (placeholder && d.name) placeholder.textContent = d.name.charAt(0);
+            if (d.profile_image && imgEl) {
+                imgEl.src = toUserAvatarUrl(d.profile_image);
+                imgEl.style.display = 'block';
+                if (placeholder) placeholder.style.display = 'none';
+                imgEl.onerror = () => { imgEl.style.display = 'none'; if (placeholder) placeholder.style.display = 'grid'; };
+            }
+        } catch (e) {}
+    })();
+    </script>
+
+    <script>
+    async function updateInboxBadge(){
+        try {
+            const r = await fetch('/api/messages/unread-count');
+            const d = await r.json();
+            const badge = document.getElementById('inboxBadge');
+            if (!badge) return;
+            if (d.count > 0) { badge.textContent = d.count > 99 ? '99+' : d.count; badge.style.display = 'inline-block'; }
+            else badge.style.display = 'none';
+        } catch (e) {}
+    }
+    updateInboxBadge();
+    setInterval(updateInboxBadge, 30000);
+    </script>
+    <script src="/static/js/app.js" defer></script>
+</body>
+</html>

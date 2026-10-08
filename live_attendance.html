@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartFace AI | الحضور المباشر</title>
+   
+    <link href="{{ url_for('static', filename='css/bootstrap.rtl.min.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/all.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="theme-color" content="#4f46e5" />
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+       
+        :root { --primary: #4f46e5; --primary-glow: rgba(79, 70, 229, 0.4); --secondary: #ec4899; --accent: #f59e0b; --bg-base: #f0f4f8; --glass-bg: rgba(255, 255, 255, 0.55); --glass-border: rgba(255, 255, 255, 0.3); --glass-shadow: 6px 6px 12px rgba(163, 177, 198, 0.4), -6px -6px 12px rgba(255, 255, 255, 0.8); --text-main: #0f172a; --text-muted: #64748b; --sidebar-bg: linear-gradient(195deg, #0f172a 0%, #1e293b 100%); --success: #10b981; --danger: #ef4444; }
+        body.dark-mode { --bg-base: #020617; --glass-bg: rgba(30, 41, 59, 0.45); --glass-border: rgba(255, 255, 255, 0.04); --glass-shadow: 4px 4px 10px rgba(0, 0, 0, 0.7); --text-main: #f1f5f9; --text-muted: #94a3b8; --sidebar-bg: linear-gradient(195deg, #000000 0%, #111827 100%); }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); min-height: 100vh; transition: .4s; overflow-x: hidden; background-image: radial-gradient(circle at 10% 10%, rgba(79, 70, 229, 0.08) 0%, transparent 35%), radial-gradient(circle at 90% 90%, rgba(236, 72, 153, 0.06) 0%, transparent 35%); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(var(--secondary), var(--primary)); border-radius: 10px; }
+
+        .glass { background: var(--glass-bg); backdrop-filter: blur(25px) saturate(180%); border: 1px solid var(--glass-border); border-radius: 24px; box-shadow: var(--glass-shadow); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        #neuralNetCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; opacity: 0.5; }
+        body.dark-mode #neuralNetCanvas { opacity: 0.3; }
+
+        .sidebar { background: var(--sidebar-bg); min-height: 100vh; color: #fff; position: sticky; top: 0; height: 100vh; overflow-y: auto; z-index: 1030; }
+        .sidebar .brand { padding: 40px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .sidebar .brand .logo { width: 70px; height: 70px; background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%); border-radius: 20px; display: grid; place-items: center; margin: 0 auto 15px; font-size: 2.2rem; color: #fff; box-shadow: 0 0 20px var(--primary-glow); animation: pulse-glow 2s infinite; }
+        @keyframes pulse-glow { 0%,100% { box-shadow: 0 0 15px var(--primary-glow); } 50% { box-shadow: 0 0 30px var(--primary-glow); } }
+        .sidebar h4 { font-weight: 900; margin: 0; }
+        .sidebar .nav-link { color: rgba(255,255,255,0.7); padding: 16px 25px; border-radius: 16px; margin: 8px 15px; display: flex; align-items: center; gap: 15px; transition: .3s; font-weight: 600; }
+        .sidebar .nav-link:hover { color: #fff; background: rgba(255,255,255, 0.04); transform: translateX(-5px); }
+        .sidebar .nav-link.active { background: rgba(79, 70, 229, 0.15); color: #fff; border-right: 3px solid var(--secondary); box-shadow: inset -10px 0 20px rgba(236, 72, 153, 0.1); }
+        .sidebar .nav-link.active i { color: var(--secondary); text-shadow: 0 0 10px var(--secondary); }
+
+        .main-content { padding: 40px; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; animation: fadeInDown 0.6s ease-out; }
+        .page-header h1 { font-size: 2.3rem; font-weight: 900; background: linear-gradient(135deg, var(--secondary), var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1.5px; }
+        .btn-action { border-radius: 15px; padding: 12px 24px; font-weight: 700; transition: .3s; display: flex; align-items: center; gap: 10px; border: 1px solid transparent; }
+        .btn-pro { background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%); color: #fff; box-shadow: 0 4px 15px var(--primary-glow); }
+        .btn-pro:hover { box-shadow: 0 6px 20px var(--primary-glow); transform: translateY(-2px); color: #fff; }
+
+        .camera-wrapper { position: relative; background: #000; border-radius: 24px; overflow: hidden; box-shadow: 0 0 40px var(--primary-glow); animation: fadeInUp 0.8s ease-out; }
+       
+        /* عكس الصورة كمرآة ليشعر المستخدم بالراحة */
+        #videoFeed { display: block; width: 100%; height: auto; transform: scaleX(-1); }
+        #overlayCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; transform: scaleX(-1); }
+       
+        .controls { position: absolute; top: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; z-index: 20; }
+        .btn-control { background: rgba(0,0,0,0.7); color: white; padding: 10px 20px; border-radius: 20px; text-decoration: none; border: none; font-size: 14px; cursor: pointer; backdrop-filter: blur(5px); }
+        .btn-control:hover { background: var(--primary); color: white; }
+        .info-panel { position: absolute; bottom: 20px; left: 20px; right: 20px; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(10px); border-radius: 16px; padding: 15px; color: white; display: flex; justify-content: space-around; border: 1px solid rgba(255,255,255,0.1); }
+        .info-item { text-align: center; }
+        .info-item .value { font-size: 1.6em; font-weight: 900; color: var(--success); text-shadow: 0 0 10px var(--success); }
+        .info-item .label { font-size: 0.8em; opacity: 0.8; }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+       
+        @media(max-width: 992px) { .sidebar { position: fixed; right: -300px; width: 300px; transform: translateX(0); transition: transform 0.3s ease-in-out; } .sidebar.show { transform: translateX(-300px); } .main-content { padding: 20px; } #menuToggle { display: block !important; } }
+    </style>
+</head>
+<body>
+    <canvas id="neuralNetCanvas"></canvas>
+
+    <button id="menuToggle" class="btn btn-pro position-fixed d-lg-none" style="top:20px; right:20px; z-index:1041; border-radius:15px; display:none;"><i class="fas fa-bars fs-4"></i></button>
+    <button id="darkModeToggle" class="btn position-fixed glass" style="bottom:30px; left:30px; width:60px; height:60px; z-index:999; border-radius:50%; font-size:1.6rem;">🌙</button>
+
+    <div class="container-fluid"><div class="row">
+        <div class="col-lg-2 sidebar p-0" id="sidebar">
+            <div class="brand"><div class="logo"><i class="fas fa-brain"></i></div><h4>SmartFace <span style="color:var(--secondary)">AI</span></h4></div>
+            <ul class="nav flex-column py-3">
+                <li><a href="/admin" class="nav-link"><i class="fas fa-home"></i> الرئيسية</a></li>
+                <li><a href="/live" class="nav-link active"><i class="fas fa-video"></i> الحضور المباشر</a></li>
+                <li><a href="/attendance" class="nav-link"><i class="fas fa-calendar-check"></i> حضور اليوم</a></li>
+                <li><a href="/daily-absence" class="nav-link"><i class="fas fa-user-times"></i> الغياب اليومي</a></li>
+                <li><a href="/settings" class="nav-link"><i class="fas fa-cogs"></i> الإعدادات</a></li>
+                <li><a href="/api/logout" class="nav-link text-danger"><i class="fas fa-sign-out-alt"></i> تسجيل خروج</a></li>
+            </ul>
+        </div>
+
+        <div class="col-lg-10 main-content">
+            <div class="page-header glass p-4 mb-4">
+                <div>
+                    <h1><i class="fas fa-video fs-3 text-muted ms-2"></i> الحضور المباشر</h1>
+                    <p style="color:var(--text-muted); margin:0;">كاميرا الشبكة (Hikvision) بث مباشر</p>
+                </div>
+            </div>
+
+            <div class="camera-wrapper glass">
+                <img id="videoFeed" src="/video_feed" alt="كاميرا المراقبة">
+                <canvas id="overlayCanvas"></canvas>
+               
+                <div class="controls">
+                    <a href="/admin" class="btn-control" style="background: rgba(239, 68, 68, 0.9);">إيقاف</a>
+                </div>
+               
+                <div class="info-panel">
+                    <div class="info-item"><div class="value" id="facesCount">--</div><div class="label">وجوه</div></div>
+                    <div class="info-item"><div class="value" id="recognizedCount">--</div><div class="label">تم التعرف</div></div>
+                    <div class="info-item"><div class="value" id="timeNow">--:--</div><div class="label">الوقت</div></div>
+                </div>
+            </div>
+        </div>
+    </div></div>
+
+    <script src="{{ url_for('static', filename='js/all.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+
+    <script>
+        const canvasBG = document.getElementById('neuralNetCanvas');
+        const ctxBG = canvasBG.getContext('2d');
+        let points = [];
+        function resizeCanvasBG() { canvasBG.width = window.innerWidth; canvasBG.height = window.innerHeight; }
+        window.addEventListener('resize', resizeCanvasBG); resizeCanvasBG();
+        class PointBG { constructor() { this.x = Math.random() * canvasBG.width; this.y = Math.random() * canvasBG.height; this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5; this.radius = Math.random() * 2 + 1; }
+            update() { this.x += this.vx; this.y += this.vy; if (this.x < 0 || this.x > canvasBG.width) this.vx *= -1; if (this.y < 0 || this.y > canvasBG.height) this.vy *= -1; }
+            draw() { ctxBG.beginPath(); ctxBG.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctxBG.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--primary'); ctxBG.fill(); }
+        }
+        for (let i = 0; i < 50; i++) points.push(new PointBG());
+        function animateCanvasBG() { ctxBG.clearRect(0, 0, canvasBG.width, canvasBG.height); points.forEach(p => { p.update(); p.draw(); }); ctxBG.lineWidth = 0.2; for (let i = 0; i < points.length; i++) { for (let j = i + 1; j < points.length; j++) { const dist = Math.hypot(points[i].x - points[j].x, points[i].y - points[j].y); if (dist < 150) { ctxBG.beginPath(); ctxBG.moveTo(points[i].x, points[i].y); ctxBG.lineTo(points[j].x, points[j].y); ctxBG.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-muted'); ctxBG.stroke(); } } } requestAnimationFrame(animateCanvasBG); }
+        animateCanvasBG();
+
+        const videoFeed = document.getElementById('videoFeed');
+        const overlayCanvas = document.getElementById('overlayCanvas');
+        const overlayCtx = overlayCanvas.getContext('2d');
+       
+        function resizeOverlay() {
+            overlayCanvas.width = videoFeed.clientWidth;
+            overlayCanvas.height = videoFeed.clientHeight;
+        }
+        window.addEventListener('resize', resizeOverlay);
+        videoFeed.onload = resizeOverlay;
+        setTimeout(resizeOverlay, 1000);
+
+        setInterval(() => {
+            const n = new Date();
+            document.getElementById('timeNow').textContent = String(n.getHours()).padStart(2, '0') + ':' + String(n.getMinutes()).padStart(2, '0');
+        }, 1000);
+
+        async function sendFrameToServer() {
+            if (!videoFeed.complete || videoFeed.naturalWidth === 0) return;
+           
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = videoFeed.naturalWidth;
+            tempCanvas.height = videoFeed.naturalHeight;
+            const ctx = tempCanvas.getContext('2d');
+           
+            // عكس الصورة عند الرسم حتى يرسل النظام صورة طبيعية للتعرف
+            ctx.translate(tempCanvas.width, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(videoFeed, 0, 0);
+           
+            const imgData = tempCanvas.toDataURL('image/jpeg', 0.7);
+
+            if (imgData === 'data:,') return;
+
+            try {
+                const r = await fetch('/api/recognize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: imgData })
+                });
+                const d = await r.json();
+                if (d.success) {
+                    document.getElementById('facesCount').textContent = d.count || 0;
+                    let rec = 0;
+                    if (d.names) d.names.forEach(n => { if (n !== "غير معروف") rec++; });
+                    document.getElementById('recognizedCount').textContent = rec;
+                   
+                    overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+                    if (d.locations) {
+                        d.locations.forEach((loc, i) => {
+                            const scaleX = overlayCanvas.width / tempCanvas.width;
+                            const scaleY = overlayCanvas.height / tempCanvas.height;
+                            // عكس الموقع أيضاً ليتطابق مع الصورة المعروضة
+                            const x = (tempCanvas.width - loc.right) * scaleX;
+                            const y = loc.top * scaleY;
+                            const w = (loc.right - loc.left) * scaleX;
+                            const h = (loc.bottom - loc.top) * scaleY;
+                           
+                            overlayCtx.fillStyle = 'rgba(0,0,0,0.7)';
+                            overlayCtx.fillRect(x, y - 25, overlayCtx.measureText(d.names[i] || 'غير معروف').width + 10, 22);
+                            overlayCtx.fillStyle = '#0f0';
+                            overlayCtx.font = '16px Segoe UI';
+                            overlayCtx.fillText(d.names[i] || 'غير معروف', x + 5, y - 8);
+                            overlayCtx.strokeStyle = '#0f0';
+                            overlayCtx.lineWidth = 3;
+                            overlayCtx.strokeRect(x, y, w, h);
+                        });
+                    }
+                }
+            } catch (e) {}
+        }
+
+        setInterval(sendFrameToServer, 1000);
+
+        const btnDark = document.getElementById('darkModeToggle');
+        if (localStorage.getItem('darkMode') === 'enabled') { document.body.classList.add('dark-mode'); btnDark.innerText = '☀️'; }
+        btnDark.onclick = () => { document.body.classList.toggle('dark-mode'); const isDark = document.body.classList.contains('dark-mode'); localStorage.darkMode = isDark ? 'enabled' : 'disabled'; btnDark.innerText = isDark ? '☀️' : '🌙'; };
+       
+        document.getElementById('menuToggle').onclick = () => document.getElementById('sidebar').classList.toggle('show');
+       
+        if ('serviceWorker' in navigator) { navigator.serviceWorker.register("{{ url_for('static', filename='service-worker.js') }}").then(() => console.log('✅ SW')).catch(err => console.log('❌ SW', err)); }
+    </script>
+</body>
+</html>
